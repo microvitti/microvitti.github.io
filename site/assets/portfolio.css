@@ -1,0 +1,509 @@
+/* micromina — portfolio de vittoria scalmati.
+   blanco y sin adornos, con la tipografía del pdf: ballet (títulos, en negro), bodoni (portada y about),
+   palatino cursiva espaciada (índice) y source sans (textos de proyecto). */
+:root {
+  --plum: #5c1a3b; /* el color de los detalles: viola oscuro, borgoña (antes un rosa, #c47f96) */
+  --ink: #1b1b1b;
+  --grey: #8c8c8c;
+  --soft: #bdbdbd;
+  --script: "Ballet", "Snell Roundhand", cursive;
+  --serif: "Bodoni Moda", "Bodoni 72", Didot, serif;
+  --pal: "Palatino Linotype", Palatino, "Book Antiqua", "Bodoni Moda", serif;
+  --sans: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; background: #fff; color: var(--ink); }
+body { font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; height: auto; }
+figure { margin: 0; }
+.script { font-family: var(--script); font-weight: 400; letter-spacing: .17em; } /* tracking 170 */
+
+/* ── barra ── */
+.bar { position: fixed; inset: 0 0 auto; z-index: 40; display: flex; justify-content: space-between; align-items: baseline; padding: 18px 4vw; background: rgba(255, 255, 255, .86); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.bar-name { font: italic 400 18px/1 var(--serif); }
+.bar-nav { display: flex; gap: 1.8rem; font-size: 13px; letter-spacing: .06em; }
+.bar a { transition: color .3s; }
+.bar a:hover { color: var(--plum); }
+/* «mini games», lo último de cada página, abajo a la derecha (en su propia página no hace falta) */
+.games-link { display: block; width: max-content; margin: 0 4vw 4vh auto; font: 400 18px/1 var(--game); letter-spacing: .06em; color: var(--grey); transition: color .3s; }
+.games-link:hover, .games-link:focus-visible { color: var(--plum); outline: none; }
+.games .games-link { display: none; }
+
+
+
+/* ── manos ── */
+/* las manos abren la página, justo debajo de la barra, enteras en la pantalla; la foto y la palabra se corren un poco a la derecha porque su peso visual cae a la izquierda */
+.hands { position: relative; padding: 64px 0 4vh; }
+.hands-fig { position: relative; width: min(1100px, 92vw, calc((100svh - 170px) * 1.25)); margin: 0 auto; transform: translateX(3%); }
+/* las muñecas cortadas (arriba la mano izquierda, a la derecha la otra) se funden con el blanco */
+.hands-fig > img {
+  width: 100%;
+  --wrists: radial-gradient(ellipse 40% 44% at 44% 0%, transparent 30%, #000 100%), radial-gradient(ellipse 38% 55% at 100% 50%, transparent 30%, #000 100%);
+  -webkit-mask-image: var(--wrists); -webkit-mask-composite: source-in;
+  mask-image: var(--wrists); mask-composite: intersect;
+}
+.hands-name { position: absolute; inset: 0; margin: 0; pointer-events: none; container-type: inline-size; }
+.hands-name .nf { position: absolute; left: 50%; top: 50%; translate: -50% -50%; visibility: hidden; }
+.hands-name .nf.on { visibility: visible; }
+.hands-name img.nf { height: auto; }
+.hands-name .nf-script { translate: -49% -50%; font-size: clamp(3.4rem, 10.8vw, 9.9rem); font-size: 15.6cqw; /* tan ancha como en su captura: el 79 % de las manos */ line-height: 1; letter-spacing: .28em; padding-left: .28em; white-space: nowrap; }
+.hands-sub { margin: 3.2vh 0 0; text-align: center; font: italic 400 clamp(1.05rem, 1.7vw, 1.4rem)/1.5 var(--serif); letter-spacing: .14em; padding: 0 16px; }
+
+/* ── índice ── */
+.index { display: grid; grid-template-columns: max-content max-content minmax(220px, 1fr); gap: 12vh 6vw; padding: 16vh 6vw 12vh; align-items: start; }
+.idx-col h2 { margin: 0 0 2.2rem .4em; color: var(--ink); font-size: clamp(3rem, 5.4vw, 5.2rem); line-height: 1.2; }
+.idx-col ul { margin: 0; padding: 0; list-style: none; }
+.idx-col li { margin: 0 0 1.05rem; font: italic 400 14px/1.5 var(--pal); letter-spacing: .15em; white-space: nowrap; transition: opacity .4s var(--ease); }
+.idx-col i { font-style: normal; padding: 0 .3em; }
+.idx-col a { display: inline-block; transition: color .3s, transform .5s var(--ease); }
+.idx-col a:hover { color: var(--plum); transform: translateX(.6rem); }
+.index:has(a:hover) li { opacity: .3; }
+.index:has(a:hover) li:has(a:hover) { opacity: 1; }
+.idx-col li.soon { color: var(--soft); }
+.idx-col li.soon span::after { content: "soon"; margin-left: .8em; font: 400 11px/1 var(--sans); letter-spacing: .2em; color: var(--plum); opacity: 0; transition: opacity .4s; }
+.idx-col li.soon:hover span::after { opacity: 1; }
+.idx-fig { position: relative; grid-column: 3; grid-row: 1 / 3; align-self: center; justify-self: center; width: min(100%, 25rem); }
+/* las chicas hablan al tocarlas: aparece lo que dicen y mueven la boca */
+.talk { position: absolute; inset: 0; padding: 0; border: 0; background: none; cursor: pointer; }
+.talk:focus-visible { outline: 1px dashed var(--soft); outline-offset: 4px; }
+/* la boca: el canvas con la boca del vídeo, encima de los labios de la foto (lo pinta assets/portfolio-ui.js).
+   solo se ve mientras habla; empieza y acaba con la boca cerrada, así que aparece y desaparece sin que se note */
+.mouth-live { position: absolute; height: auto; opacity: 0; transition: opacity .15s linear; pointer-events: none; }
+.speaking .mouth-live { opacity: 1; }
+.bubble { position: absolute; left: 50%; top: var(--by, 3%); transform: translate(-50%, calc(-100% + 8px)); width: max-content; max-width: min(17em, 140%); text-align: center; font: italic 400 16px/1.3 var(--serif); letter-spacing: .06em; color: var(--plum); opacity: 0; transition: opacity .4s, transform .4s var(--ease); pointer-events: none; }
+.talking .bubble { opacity: 1; transform: translate(-50%, -100%); }
+/* respuestas: aparecen cuando termina la frase y se quedan hasta que se elige una */
+.asking .bubble { opacity: 1; transform: translate(-50%, -100%); pointer-events: auto; }
+.bubble-text { display: block; min-height: 1.3em; }
+.bubble-choices { display: none; justify-content: center; gap: 1.6em; margin-top: .55em; font: 400 18px/1 var(--game); font-style: normal; letter-spacing: .06em; }
+.asking .bubble-choices { display: flex; }
+.bubble-choices a { color: var(--plum); transition: color .2s; }
+.bubble-choices a::before { content: "> "; }
+.bubble-choices a:hover, .bubble-choices a:focus-visible { color: var(--ink); outline: none; }
+
+/* ── about ── */
+.about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 6vw; align-items: center; padding: 14vh 6vw; }
+.about-side { display: grid; gap: 3.2rem; }
+.about-fig { position: relative; }
+.about-text h2 { margin: 0 0 2.4rem; color: var(--ink); font-size: clamp(3.4rem, 6.5vw, 6.2rem); line-height: 1.2; letter-spacing: .17em; }
+.bio { max-width: 34rem; font: 400 17px/1.65 var(--serif); }
+.bio p { margin: 0 0 1em; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 3vw; margin-top: 3rem; font-size: 13px; line-height: 1.7; color: #444; }
+.facts h3 { margin: 0 0 .4rem; font: 500 12px/1 var(--sans); letter-spacing: .2em; color: var(--ink); }
+.facts p { margin: 0 0 1.6rem; }
+
+/* ── contacto ── */
+.contact { min-height: 90svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10vh 6vw; }
+.contact > .script { margin: 0 0 2rem; color: var(--ink); font-size: clamp(4rem, 10vw, 9rem); line-height: 1.2; }
+.contact > .script a { color: inherit; transition: opacity .4s; } /* lleva al blog */
+.contact > .script a:hover, .contact > .script a:focus-visible { opacity: .7; outline: none; }
+.contact-lines { font: italic 400 19px/2 var(--serif); }
+.contact-lines p { margin: 0; }
+.contact-lines a { border-bottom: 1px solid transparent; transition: border-color .3s, color .3s; }
+.contact-lines a:hover { color: var(--plum); border-color: currentColor; }
+.thanks { margin: 12vh 0 0; font-size: 12px; letter-spacing: .3em; color: var(--grey); }
+
+/* ── la cara del final: entra flotando, habla en un cuadro de diálogo de la primera playstation, cierra los ojos y sonríe ── */
+.oracle { position: fixed; inset: 0; z-index: 60; pointer-events: none; visibility: hidden; }
+.oracle.in { visibility: visible; }
+/* un velo blanco apaga la página mientras ella habla */
+.oracle::before { content: ""; position: absolute; inset: 0; background: rgba(255, 255, 255, .72); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); opacity: 0; transition: opacity 1.2s ease; }
+.oracle.in::before { opacity: 1; }
+.oracle.gone::before { opacity: 0; }
+.oracle-face { position: absolute; left: 50%; top: 40%; width: min(270px, 52vw); isolation: isolate; opacity: 0; transform: translate(-50%, -50%) translateX(-80vw); transition: transform 2.6s cubic-bezier(.25, .8, .3, 1), opacity 1.2s ease; }
+.oracle.in .oracle-face { opacity: 1; transform: translate(-50%, -50%); }
+.oracle.gone .oracle-face { opacity: 0; transform: translate(-50%, -50%) translateX(80vw); transition-duration: 1.8s, 1.4s; }
+/* el aura borgoña respira detrás de ella */
+.oracle-face::before { content: ""; position: absolute; inset: -18% -34%; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(92, 26, 59, .55), rgba(92, 26, 59, .22) 55%, rgba(92, 26, 59, 0)); filter: blur(16px); animation: aura 3.2s ease-in-out infinite; }
+@keyframes aura { 50% { transform: scale(1.1); opacity: .7; } }
+.oracle-bob { position: relative; filter: drop-shadow(0 0 16px rgba(92, 26, 59, .45)); animation: bob 3.4s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-12px) rotate(-1.5deg); } }
+.oracle-bob img { width: 100%; }
+/* la boca del vídeo encima de la de la foto (la máscara la pinta portfolio-ui.js) */
+.face-video { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.face-mouth { position: absolute; left: 42.09%; top: 76.09%; width: 49.15%; height: auto; transition: opacity .9s ease; }
+/* al terminar la frase se funde con la foto en la que cierra los ojos y sonríe */
+.oracle-bob .face-smile { position: absolute; inset: 0; opacity: 0; transition: opacity .9s ease; }
+.oracle.smile .face-mouth { opacity: 0; }
+.oracle.smile .face-smile { opacity: 1; }
+/* el cuadro de diálogo: blanco, una línea fina, como el resto del sitio */
+.oracle-box { position: absolute; left: 50%; bottom: 7vh; width: min(560px, calc(100% - 32px)); padding: 16px 22px 20px; border: 1px solid var(--ink); background: rgba(255, 255, 255, .94); color: var(--ink); opacity: 0; transform: translate(-50%, 16px); transition: opacity .5s ease, transform .5s var(--ease); }
+.oracle.boxed .oracle-box { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.oracle.gone .oracle-box { opacity: 0; pointer-events: none; }
+.oracle-name { margin: 0 0 .45rem; font: 400 11px/1 var(--sans); letter-spacing: .3em; color: var(--plum); }
+.oracle-text { margin: 0; min-height: 3em; font: italic 400 18px/1.5 var(--serif); letter-spacing: .03em; }
+.oracle.done .oracle-text::after { content: "▼"; margin-left: .6em; font: 10px/1 var(--sans); color: var(--plum); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.oracle-close { position: absolute; top: 8px; right: 10px; padding: 4px; border: 0; background: none; color: var(--grey); font: 13px/1 var(--sans); cursor: pointer; }
+.oracle-close:hover { color: var(--plum); }
+/* ── la pantalla del principio: blanca, con el cuadro de diálogo en el centro; sin javascript no aparece ── */
+.intro { display: none; }
+.js .intro { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; background: #fff; transition: opacity .9s ease, visibility .9s; }
+.js .intro.gone { opacity: 0; visibility: hidden; }
+.js.intro-on { overflow: hidden; }
+.intro-seen .intro { display: none !important; }
+.intro-box { position: relative; width: min(560px, 100%); padding: 16px 22px 20px; border: 1px solid var(--ink); background: #fff; }
+.intro-start { display: block; margin: 1.2rem 0 0 auto; padding: 4px 0; border: 0; background: none; color: var(--plum); font: 400 12px/1 var(--sans); letter-spacing: .3em; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .5s; }
+.intro.ready .intro-start { opacity: 1; pointer-events: auto; animation: blink 1.2s steps(1) infinite; }
+.intro-start:hover, .intro-start:focus-visible { animation: none; outline: none; color: var(--ink); }
+
+/* ── proyecto ── */
+.p-head { padding: 22vh 6vw 7vh; text-align: center; }
+.p-title { margin: .2em 0 0; color: var(--ink); font-size: clamp(4.5rem, 12vw, 11rem); line-height: 1.15; letter-spacing: .17em; padding-left: .17em; }
+/* los títulos largos (the hedgehog’s confession) bajan de tamaño para quedar en una sola línea */
+.p-title-long { font-size: clamp(2rem, 9vw, 8.4rem); letter-spacing: .17em; }
+
+/* ── micromina: el blog, con la ropa del portfolio ── */
+.mm-home { padding: 22vh 6vw 6vh; text-align: center; }
+/* «holi,» cambiando de letra: todas las formas, una encima de otra, y sólo una a la vista (como «microvitti») */
+@font-face { font-family: "FT88 School"; src: url("fonts/ft88-school.woff2") format("woff2"); font-display: swap; }
+.mm-flick { position: relative; height: clamp(6rem, 15vw, 13rem); margin: 0 0 3vh; font-size: clamp(4.5rem, 12vw, 11rem); font-weight: 400; line-height: 1; color: var(--ink); }
+.mm-flick .nf { position: absolute; left: 50%; top: 50%; translate: -50% -50%; white-space: nowrap; visibility: hidden; }
+.mm-flick .nf.on { visibility: visible; }
+.mm-flick .nf:first-child { letter-spacing: .17em; padding-left: .17em; }
+.mm-lead { margin: 0 0 1.2rem; font: 400 clamp(1.3rem, 2.2vw, 1.8rem)/1.3 var(--serif); }
+.mm-yo { margin: 0 0 2.6rem; font: italic 400 19px/1.4 var(--serif); }
+.mm-yo a, .mm-prose a, .mm-bio a, .mm-list a { color: var(--plum); text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: 1px; }
+.mm-button { display: inline-block; padding: 16px 34px; border-radius: 999px; background: var(--plum); color: #fff; font: 400 14px/1 var(--sans); letter-spacing: .2em; transition: background .3s; }
+.mm-button:hover, .mm-button:focus-visible { background: #3f1028; outline: none; }
+.mm-logo { width: 110px; margin: 9vh auto 0; }
+.mm-wrap { max-width: 760px; margin: 0 auto; padding: 22vh 6vw 8vh; }
+.mm-wrap > .p-title { margin-bottom: 6vh; text-align: center; }
+.mm-list { list-style: none; margin: 0; padding: 0; }
+.mm-list li { margin: 0 0 2.8rem; }
+.mm-list h2 { margin: 0; font: italic 400 clamp(1.25rem, 2vw, 1.5rem)/1.3 var(--pal); letter-spacing: .02em; }
+.mm-list h2 a { color: var(--ink); text-decoration: none; transition: color .3s; }
+.mm-list h2 a:hover, .mm-list h2 a:focus-visible { color: var(--plum); outline: none; }
+.mm-list time, .mm-meta { display: block; margin: .35rem 0 .7rem; font: 400 12px/1.4 var(--sans); letter-spacing: .2em; color: var(--grey); }
+.mm-list p { margin: 0; font: 400 17px/1.65 var(--serif); }
+.mm-post h1 { margin: 0; font: italic 400 clamp(2rem, 4.6vw, 3.4rem)/1.15 var(--serif); text-align: center; }
+.mm-meta { margin: 1.4rem 0 4rem; text-align: center; }
+.mm-cat { margin-right: 1.4em; color: var(--plum); text-transform: uppercase; }
+.mm-prose { font: 400 18px/1.7 var(--serif); }
+.mm-prose p, .mm-prose li { margin: 0 0 1.2em; }
+.mm-prose h2, .mm-prose h3 { margin: 2.2em 0 .8em; font: italic 400 1.6rem/1.25 var(--serif); }
+.mm-prose .center { text-align: center; }
+.mm-prose blockquote { margin: 2.2em 0; padding: 0 0 0 1.6rem; border-left: 1px solid var(--plum); font-style: italic; text-align: center; }
+.mm-prose figure { margin: 2.4em 0; }
+.mm-prose figure img { margin: 0 auto; }
+.mm-prose figure.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.mm-prose figure.gallery figure { margin: 0; }
+.mm-prose figcaption { margin-top: .6em; font: 400 12px/1.5 var(--sans); letter-spacing: .08em; color: var(--grey); text-align: center; }
+.mm-prose pre { font: inherit; white-space: pre-wrap; }
+.mm-pager { display: flex; justify-content: space-between; gap: 30px; margin-top: 5rem; font: italic 400 17px/1.35 var(--serif); }
+.mm-pager a { max-width: 46%; color: var(--ink); transition: color .3s; }
+.mm-pager a:last-child { text-align: right; }
+.mm-pager a:hover, .mm-pager a:focus-visible { color: var(--plum); outline: none; }
+.mm-pager span { display: block; margin-bottom: .4rem; font: normal 400 11px/1 var(--sans); letter-spacing: .25em; color: var(--grey); }
+.mm-bio .mm-holi { margin: 0 0 4vh; font: 400 clamp(5rem, 18vw, 13rem)/1 var(--script); text-align: center; }
+.mm-bio .bio { max-width: 38rem; margin: 0 auto; text-align: center; }
+.mm-bio .bio p { margin: 0 0 1.3em; }
+
+@media (min-width: 700px) { .p-title-long { white-space: nowrap; } }
+.p-type { margin: 1.4rem 0 0; font: 400 clamp(1rem, 1.7vw, 1.35rem)/1.4 var(--serif); letter-spacing: .2em; color: var(--ink); } /* el subtítulo: en negro y en minúscula */
+.p-hero { padding: 0 6vw; }
+.p-hero img, .p-hero video { display: block; width: auto; max-width: 100%; max-height: 90vh; margin: 0 auto; }
+.p-hero-cut img, .p-hero-cut video { max-height: 78vh; } /* la silla, sola */
+/* el libro de la tesis: una revista abierta, hecha como un mockup — las fotos planas y encima la luz: la página se
+   hunde y se oscurece hacia el lomo, se levanta y brilla un poco antes, y en el borde de fuera se ven las hojas de
+   debajo; la grana del papel, la sombra suave en la mesa y una más oscura bajo el lomo. --shade-l y --shade-r las
+   usan también las tiras de la hoja que gira (assets/portfolio-ui.js) */
+.book {
+  --shade-l: linear-gradient(to right, rgba(0, 0, 0, .1), rgba(0, 0, 0, 0) 4%, rgba(0, 0, 0, 0) 76%, rgba(0, 0, 0, .07) 85%, rgba(0, 0, 0, .18) 91.5%, rgba(0, 0, 0, .34) 96%, rgba(0, 0, 0, .55) 98.8%, rgba(0, 0, 0, .7)), linear-gradient(rgba(0, 0, 0, .05), rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 0) 86%, rgba(0, 0, 0, .08)), linear-gradient(var(--paper), var(--paper));
+  --shade-r: linear-gradient(to left, rgba(0, 0, 0, .09), rgba(0, 0, 0, 0) 4%, rgba(0, 0, 0, 0) 78%, rgba(0, 0, 0, .08) 87%, rgba(0, 0, 0, .2) 93%, rgba(0, 0, 0, .38) 97%, rgba(0, 0, 0, .6) 99.3%, rgba(0, 0, 0, .74)), linear-gradient(rgba(0, 0, 0, .05), rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 0) 86%, rgba(0, 0, 0, .08)), linear-gradient(var(--paper), var(--paper));
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --paper: #fff; /* el tono del papel, multiplicado sobre la página */
+  margin: 0 auto; padding: 0 6vw;
+}
+.book-stage { position: relative; display: flex; width: min(880px, 100%, 102vh); aspect-ratio: var(--ratio, 2600 / 1759); margin: 0 auto; perspective: 2400px; perspective-origin: 50% 30%; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.book-stage:active { cursor: grabbing; }
+/* la sombra en la mesa: pegada al papel y otra grande y blanda; bajo el lomo, más oscura */
+.book-stage::before { content: ""; position: absolute; inset: .6% .4% -.4%; z-index: -1; border-radius: 2px; box-shadow: 0 1px 2px rgba(0, 0, 0, .2), 0 6px 10px -4px rgba(0, 0, 0, .16), 0 22px 30px -12px rgba(0, 0, 0, .22), 0 50px 70px -28px rgba(0, 0, 0, .28); }
+.book-stage::after { content: ""; position: absolute; left: 50%; bottom: -2.2%; z-index: -1; width: 22%; height: 6%; translate: -50% 0; background: radial-gradient(closest-side, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0)); }
+.book-half { position: relative; width: 50%; height: 100%; overflow: hidden; background: #fff; }
+.book-half img { width: 200%; max-width: none; height: 100%; }
+.book-r img { margin-left: -100%; }
+/* el canto de las hojas de debajo, en el borde de fuera */
+.book-l { box-shadow: -1px 1px 0 #f7f7f7, -2px 1px 0 #d8d8d8, -3px 2px 0 #f5f5f5, -4px 2px 0 #d2d2d2, -5px 3px 0 #f2f2f2, -6px 3px 0 #c8c8c8; }
+.book-r { box-shadow: 1px 1px 0 #f7f7f7, 2px 1px 0 #d8d8d8, 3px 2px 0 #f5f5f5, 4px 2px 0 #d2d2d2, 5px 3px 0 #f2f2f2, 6px 3px 0 #c8c8c8; }
+.book-half::before, .book-half::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+/* la grana y el brillo donde el papel se levanta, en soft-light; la sombra hacia el lomo, en multiply */
+.book-half::before { background: var(--grain); background-size: 220px; mix-blend-mode: soft-light; opacity: .55; }
+.book-l::before { background: linear-gradient(to right, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, .55) 76%, rgba(255, 255, 255, 0) 86%), var(--grain); background-size: auto, 220px; }
+.book-r::before { background: linear-gradient(to left, rgba(255, 255, 255, 0) 64%, rgba(255, 255, 255, .5) 79%, rgba(255, 255, 255, 0) 88%), var(--grain); background-size: auto, 220px; }
+.book-l::after { background: var(--shade-l); mix-blend-mode: multiply; }
+.book-r::after { background: var(--shade-r); mix-blend-mode: multiply; }
+.book-cover { display: none; }
+/* tapa dura (coat hanger book): el cartón gris asoma alrededor de las páginas, más oscuro en el lomo; el papel es gris
+   claro y la sombra cae hacia la derecha, como en su mockup */
+.p-book { max-width: 1640px; margin: 0 auto 4vh; }
+.book-hard { --paper: #f2f1ef; }
+.book-hard .book-stage { width: min(1200px, 100%, 132vh); } /* grande, que el texto se tiene que leer (un 20 % menos que antes) */
+.book-hard .book-cover { display: block; position: absolute; inset: -1.3% -1.2% -1.6%; z-index: 0; border-radius: 2px 3px 3px 2px; background: linear-gradient(to right, #9d9d9b, #bdbdbb 1.2%, #c6c6c4 6%, #c3c3c1 47%, #8d8d8b 49.6%, #6f6f6d 50%, #8d8d8b 50.4%, #c3c3c1 53%, #c6c6c4 94%, #bdbdbb 98.8%, #9d9d9b); }
+.book-hard .book-l, .book-hard .book-r { box-shadow: none; }
+.book-hard .book-stage::before { inset: -1.3% -1.2% -1.6%; box-shadow: 0 1px 2px rgba(0, 0, 0, .18), 6px 8px 12px -4px rgba(0, 0, 0, .14), 24px 26px 38px -14px rgba(0, 0, 0, .2), 60px 50px 80px -30px rgba(0, 0, 0, .2); }
+.book-hard .book-stage::after { bottom: -4%; }
+/* la hoja que gira: tiras metidas una dentro de otra, cada una con su cara de delante y de detrás */
+.book-cast { position: absolute; top: 0; z-index: 2; width: 50%; height: 100%; opacity: 0; pointer-events: none; }
+.book-cast-l { left: 0; }
+.book-cast-r { left: 50%; }
+.bs { position: absolute; top: 0; height: 100%; transform-style: preserve-3d; }
+.book-leaf { z-index: 3; }
+.bs-f, .bs-b { position: absolute; inset: 0; background-repeat: no-repeat; background-blend-mode: multiply, multiply, multiply, normal; background-color: #fff; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.bs-b { transform: rotateY(180deg); }
+.bs-f i, .bs-b i { position: absolute; inset: 0; }
+.book-nav { display: flex; justify-content: center; align-items: center; gap: 1.6rem; margin-top: 2.2rem; font: 400 12px/1 var(--sans); letter-spacing: .3em; color: var(--grey); }
+.book-nav button { padding: 6px 4px; border: 0; background: none; color: var(--ink); font: inherit; font-size: 15px; letter-spacing: 0; cursor: pointer; transition: opacity .3s; }
+.book-nav button:disabled { opacity: .2; cursor: default; }
+.book-nav button:hover:not(:disabled), .book-nav button:focus-visible { color: var(--plum); outline: none; }
+.p-text { max-width: 40rem; margin: 14vh auto; padding: 0 6vw; box-sizing: content-box; }
+.p-text h2 { margin: 0 0 1.4rem; font: 500 19px/1.4 var(--sans); }
+.p-text p { margin: 0 0 1.1em; }
+.p-text a { border-bottom: 1px solid currentColor; transition: color .3s; }
+.p-text a:hover { color: var(--plum); }
+.p-translation { font: italic 400 17px/1.65 var(--serif); color: #555; }
+.p-meta { margin-top: 2.6rem !important; font-size: 14px; color: #b4b0ab; } /* nombre | proyecto | año | medidas | personal project, en gris claro */
+.p-gallery { display: flex; flex-direction: column; gap: 7vw; max-width: 1300px; margin: 0 auto; padding: 0 6vw; }
+.p-hero + .p-gallery { margin-top: 7vw; } /* con el texto al final, la galería no se pega a la foto grande */
+/* dos fotos juntas, a la misma altura, y una en el centro */
+.g-pair { display: flex; gap: 3vw; align-items: flex-start; }
+.g-pair figure { margin: 0; min-width: 0; }
+.g-single { margin: 0 auto; }
+.g-single.g-wide { width: 84%; }
+.g-single.g-tall { width: min(56%, 640px); }
+.g-group figure { margin: 0; }
+.g-cap { margin: 1.1rem 0 0; text-align: center; font-size: 14px; letter-spacing: .04em; color: #b4b0ab; } /* la nota de un grupo: 3d model, editorial concept… */
+.p-gallery img, .p-gallery video { display: block; width: 100%; height: auto; }
+.p-next { display: block; margin-top: 22vh; padding: 14vh 6vw; text-align: center; }
+.p-next span { display: block; font-size: 12px; letter-spacing: .3em; color: var(--grey); }
+.p-next strong { display: block; color: var(--ink); font-size: clamp(4rem, 10vw, 9rem); line-height: 1.3; letter-spacing: .17em; transition: letter-spacing .8s var(--ease); }
+.p-next:hover strong { letter-spacing: .27em; }
+.p-foot { display: flex; justify-content: space-between; padding: 3vh 4vw 4vh; font-size: 12px; letter-spacing: .06em; color: var(--grey); }
+.p-foot a:hover { color: var(--plum); }
+
+/* ── creative process: el gabinete de curiosidades. toda la pantalla es la foto, recortada para llenarla;
+   encima, una luz más etérea: la foto más clara y suave, un halo que brilla (una copia desenfocada) y la lámpara.
+   la letra de los diálogos es de ordenador viejo (vt323); todo se mide con el ancho de la escena (cqw) ── */
+.process .bar { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.cabinet { position: relative; height: 100svh; overflow: hidden; background: #d9d1c5; --game: "VT323", "Courier New", monospace; }
+/* la foto llena la pantalla; si sobra alto (pantallas muy anchas) se recorta por arriba, para no perder el diálogo */
+.stage { position: absolute; left: 50%; bottom: 0; width: max(100vw, 100svh * 2000 / 1116); aspect-ratio: 2000 / 1116; transform: translateX(-50%); container-type: inline-size; }
+.cab-photo, .cab-bloom { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* en la pantalla del mac, la miniatura de los vídeos que la acompañan (al tocar el mac, se abre la lista) */
+.mac-screen { position: absolute; object-fit: cover; object-position: 50% 35%; pointer-events: none; box-shadow: 0 0 6px rgba(225, 228, 240, .22); } /* la captura ya viene con la luz de la foto (originali/mac-screen-prima.jpg es la de antes) */
+.cab-photo { filter: contrast(1.06); }
+.smoke { position: absolute; height: auto; filter: blur(1.2px); pointer-events: none; }
+.cab-bloom { filter: blur(12px) brightness(1.15) saturate(.8); mix-blend-mode: screen; opacity: .16; pointer-events: none; }
+/* la lámpara: un halo blanco que respira y parpadea de vez en cuando */
+.lamp { position: absolute; inset: 0; background: radial-gradient(ellipse 30% 55% at 50% 38%, rgba(255, 248, 235, .3), rgba(255, 248, 235, 0) 70%), radial-gradient(ellipse 90% 120% at 50% 45%, rgba(255, 252, 247, 0) 50%, rgba(255, 252, 247, .14) 100%); mix-blend-mode: screen; animation: lamp 9s ease-in-out infinite; pointer-events: none; }
+@keyframes lamp { 0%, 100% { opacity: .85; } 46% { opacity: 1; } 48% { opacity: .7; } 50% { opacity: .95; } 72% { opacity: .8; } }
+/* cada objeto es una zona de la foto; al pasar por encima aparecen las esquinas de la mira */
+.curio { position: absolute; padding: 0; border: 0; background: none; cursor: pointer; }
+.curio::before { content: ""; position: absolute; inset: -6%; --c: rgba(255, 252, 245, .95); --l: 1.1cqw; --t: .16cqw;
+  background: linear-gradient(var(--c), var(--c)) 0 0 / var(--l) var(--t), linear-gradient(var(--c), var(--c)) 0 0 / var(--t) var(--l),
+    linear-gradient(var(--c), var(--c)) 100% 0 / var(--l) var(--t), linear-gradient(var(--c), var(--c)) 100% 0 / var(--t) var(--l),
+    linear-gradient(var(--c), var(--c)) 0 100% / var(--l) var(--t), linear-gradient(var(--c), var(--c)) 0 100% / var(--t) var(--l),
+    linear-gradient(var(--c), var(--c)) 100% 100% / var(--l) var(--t), linear-gradient(var(--c), var(--c)) 100% 100% / var(--t) var(--l);
+  background-repeat: no-repeat; filter: drop-shadow(0 0 .3cqw rgba(255, 240, 210, .9)); opacity: 0; transform: scale(1.12); transition: opacity .25s, transform .3s var(--ease); pointer-events: none; }
+.curio:hover::before, .curio:focus-visible::before, .curio.here::before { opacity: 1; transform: none; }
+.curio:focus-visible { outline: none; }
+/* el contador va sobre la pantalla (no sobre la foto, que puede recortarse por los lados), bajo la barra */
+.items { position: absolute; z-index: 3; left: 4vw; top: 64px; margin: 0; font: 400 20px/1 var(--game); letter-spacing: .08em; text-transform: uppercase; color: rgba(255, 252, 245, .9); text-shadow: 0 0 .4cqw rgba(60, 45, 30, .5); }
+/* el primer plano de un objeto: sobre la estantería, con un velo claro; se queda encima del cuadro de diálogo
+   (que sigue delante) y crece desde el sitio del objeto (assets/portfolio-ui.js) */
+.closeup { position: absolute; inset: 0; z-index: 2; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 16%; background: rgba(247, 242, 235, 0); transition: background .8s ease; }
+.closeup.on { background: rgba(214, 200, 182, .72); }
+/* la luz que lo ilumina por detrás: un halo cálido detrás del objeto (centrado donde queda la imagen) que respira despacio */
+.closeup::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 30% 50% at 50% 49%, rgba(255, 253, 245, 1), rgba(255, 246, 226, .8) 38%, rgba(255, 240, 215, .3) 62%, rgba(255, 240, 215, 0) 82%); opacity: 0; transition: opacity 1.2s ease .3s; pointer-events: none; }
+.closeup.on::before { opacity: 1; animation: backlight 6s ease-in-out 1.5s infinite; }
+@keyframes backlight { 0%, 100% { opacity: 1; } 50% { opacity: .78; } }
+.closeup img { position: relative; height: 70%; max-height: 72svh; width: auto; transform-origin: 0 0; transition: transform .9s var(--ease), filter 1.2s ease .3s; filter: drop-shadow(0 1.2cqw 2cqw rgba(60, 45, 30, .3)); }
+/* el borde del objeto se enciende con la luz de detrás */
+.closeup.on img { filter: drop-shadow(0 0 .35cqw rgba(255, 252, 240, 1)) drop-shadow(0 0 1.4cqw rgba(255, 246, 225, .95)) drop-shadow(0 0 3.5cqw rgba(255, 238, 205, .7)) drop-shadow(0 1.2cqw 2cqw rgba(60, 45, 30, .18)); }
+.closeup[hidden] { display: none; }
+/* el cuadro de diálogo, siempre abajo como en un juego: claro, con una línea fina y una luz blanca alrededor */
+/* el cuadro de diálogo, apoyado abajo: si la frase es larga crece hacia arriba y nunca se sale de la pantalla;
+   nunca es más ancho que la ventana (en el móvil la estantería es más ancha que la pantalla) */
+.game-box { position: absolute; z-index: 3; left: 50%; bottom: 1.6%; translate: -50% 0; width: min(37.1%, calc(100vw - 32px)); min-height: 13.1%; padding: clamp(8px, .9cqw, 16px) clamp(12px, 1.4cqw, 24px); border: 1px solid rgba(70, 55, 40, .7); background: #fbf8f2; box-shadow: 0 0 1.6cqw rgba(255, 250, 240, .9); color: #3a2e24; font: 400 clamp(15px, min(1.75cqw, 4.4vw), 30px)/1.2 var(--game); letter-spacing: .02em; }
+.game-text { margin: 0; min-height: 2.4em; }
+.game-choices { display: flex; gap: 2.4em; margin: .35em 0 0; }
+.game-choices button { position: relative; padding: 0 0 0 1em; border: 0; background: none; color: rgba(58, 46, 36, .5); font: inherit; letter-spacing: inherit; cursor: pointer; }
+.game-choices button.sel { color: var(--plum); }
+.game-choices button.sel::before { content: ">"; position: absolute; left: 0; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ── tarot reader: la tarotista en su página. fondo blanco y ella retroiluminada: alrededor un blanco apenas
+   tostado, detrás de ella un halo blanco que respira, rayos que giran muy despacio y polvo de luz dorado que sube.
+   las cartas salen de su mano y se quedan en la mesa, delante de ella; el diálogo, abajo, como en el gabinete ── */
+.tarot-page .bar { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.tarot-room { position: relative; height: 100svh; overflow: hidden; background: radial-gradient(ellipse 72% 82% at 50% 40%, #fff 0, #fcfbf8 28%, #ebe6df 72%, #ddd5cb 100%); --game: "VT323", "Courier New", monospace; --rh: min(72svh, 100vw * 860 / 712); }
+.tr-light, .tr-light i, .tr-dust { position: absolute; pointer-events: none; }
+.tr-light { inset: 0; }
+.tr-rays { left: 50%; top: 38%; width: 170vmax; height: 170vmax; translate: -50% -50%; background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0) 0 6deg, rgba(255, 255, 255, .95) 9deg, rgba(255, 255, 255, 0) 13deg, rgba(255, 255, 255, 0) 21deg); -webkit-mask: radial-gradient(circle, #000 8%, transparent 46%); mask: radial-gradient(circle, #000 8%, transparent 46%); filter: blur(8px); opacity: 1; animation: rays 140s linear infinite; }
+@keyframes rays { to { rotate: 360deg; } }
+.tr-halo { left: 50%; top: 40%; width: calc(var(--rh) * 1.25); height: calc(var(--rh) * 1.15); translate: -50% -50%; border-radius: 50%; background: radial-gradient(closest-side, #fff 0, #fff 45%, rgba(255, 255, 255, .7) 70%, rgba(255, 255, 255, 0) 100%); animation: halo 7s ease-in-out infinite; }
+@keyframes halo { 0%, 100% { opacity: 1; scale: 1; } 50% { opacity: .82; scale: .97; } }
+.tr-dust { inset: 0; }
+.tr-dust i { position: absolute; left: var(--x); bottom: -10px; width: var(--s); height: var(--s); border-radius: 50%; background: #fffaf0; box-shadow: 0 0 6px 2px rgba(222, 196, 150, .75); opacity: 0; animation: dust var(--t) linear var(--d) infinite; }
+@keyframes dust { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: .9; } 80% { opacity: .5; } 100% { opacity: 0; transform: translate(4vw, -90svh); } }
+/* ella: respira apenas, y el borde le brilla con la luz de detrás */
+.tr-reader { position: absolute; left: 50%; bottom: 22svh; width: calc(var(--rh) * 712 / 860); height: var(--rh); translate: -50% 0; transform-origin: 50% 100%; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 1)) drop-shadow(0 0 34px rgba(255, 252, 245, .9)); animation: breathe-reader 5.5s ease-in-out infinite; }
+.tr-reader img { display: block; width: 100%; height: 100%; }
+.tr-reader .tr-body { position: absolute; inset: 0; }
+.tr-face { position: absolute; pointer-events: none; } /* la cabeza viva, encima del cuerpo */
+@keyframes breathe-reader { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.006, 1.01); } }
+/* la mesa: solo la sombra suave donde se apoyan sus brazos y las cartas */
+.tr-table { position: absolute; left: 50%; bottom: calc(22svh - 2.4svh); width: calc(var(--rh) * .95); height: 5svh; translate: -50% 0; background: radial-gradient(closest-side, rgba(120, 100, 84, .2), rgba(120, 100, 84, 0)); }
+.tr-spread { position: absolute; z-index: 2; left: 50%; bottom: 20svh; display: flex; gap: min(2.4svh, 3vw); translate: -50% 0; }
+.tr-spread .tcard { width: min(12.5svh, 24vw); cursor: pointer; opacity: 0; transition: transform .75s var(--ease), opacity .3s ease; }
+.tr-spread .tcard.dealt { opacity: 1; }
+.tr-spread .tcard-in { box-shadow: 0 .8svh 1.6svh rgba(80, 60, 45, .18); }
+.tr-spread .tcard-face { padding: 14% 6%; }
+.tr-spread .tc-num { font-size: min(2.2svh, 4vw); }
+.tr-spread .tc-sym { font-size: min(5svh, 9vw); }
+.tr-spread .tc-name { font-size: min(1.8svh, 3.2vw); }
+/* el cuadro de diálogo: claro, con una línea fina y una luz blanca alrededor */
+.tr-box { position: absolute; z-index: 3; left: 50%; bottom: 2.5svh; width: min(640px, calc(100% - 32px)); min-height: 15svh; padding: 12px 20px; translate: -50% 0; border: 1px solid rgba(70, 55, 40, .7); background: #fbf8f2; box-shadow: 0 0 24px rgba(255, 250, 240, .9); color: #3a2e24; font: 400 clamp(18px, 2.7svh, 24px)/1.2 var(--game); letter-spacing: .02em; }
+.tr-text { margin: 0; min-height: 2.4em; }
+.tr-choices { display: flex; flex-wrap: wrap; gap: .2em 2.4em; margin: .35em 0 0; }
+.tr-choices button, .tr-choices a { position: relative; padding: 0 0 0 1em; border: 0; background: none; color: rgba(58, 46, 36, .5); font: inherit; letter-spacing: inherit; cursor: pointer; }
+.tr-choices .sel { color: var(--plum); }
+.tr-choices .sel::before { content: ">"; position: absolute; left: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .tr-rays, .tr-halo, .tr-dust i, .tr-reader { animation: none; }
+  .tr-dust { display: none; }
+  .tr-spread .tcard { transition: none; }
+}
+/* en los mini juegos, la puerta a su página: ella en pequeño, con su luz */
+.tarot-door { display: grid; grid-template-columns: minmax(140px, 260px) 1fr; align-items: center; gap: clamp(16px, 4vw, 40px); }
+.door-light { display: block; padding: 10px 10px 0; background: radial-gradient(ellipse 60% 60% at 50% 45%, #fff 30%, #eee9e3 100%); }
+.door-light img { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 10px #fff); }
+.door-words .game-line { display: block; margin-top: 0; }
+.door-words .game-btn { display: inline-block; margin-top: .8rem; }
+.tarot-door:hover .game-btn { color: var(--ink); }
+@media (max-width: 600px) { .tarot-door { grid-template-columns: 1fr; } }
+
+/* ── mini games: tarot reader y pet my cats.
+   cada juego en un panel blanco con una línea fina; las frases con la letra de ordenador viejo (vt323) ── */
+.games { --game: "VT323", "Courier New", monospace; }
+.games-menu { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem 2.2rem; margin-top: 2.2rem; font: 400 20px/1 var(--game); letter-spacing: .06em; }
+.games-menu a:hover { color: var(--plum); }
+.game { max-width: 980px; margin: 0 auto; padding: 10vh 6vw 0; scroll-margin-top: 60px; }
+.game-title { margin: 0 0 1.4rem .3em; font-size: clamp(2.6rem, 4.6vw, 4.4rem); line-height: 1.2; letter-spacing: .17em; color: var(--ink); } /* en la ballet del sitio, como los títulos del índice */
+.game-panel { padding: 28px clamp(16px, 4vw, 40px) 24px; border: 1px solid var(--ink); background: #fff; }
+.game-line { min-height: 2.6em; margin: 1.4rem 0 0; font: 400 21px/1.25 var(--game); letter-spacing: .02em; }
+.game-actions { display: flex; flex-wrap: wrap; gap: 1.8rem; margin: .8rem 0 0; }
+.game-btn { padding: 0; border: 0; background: none; color: var(--plum); font: 400 21px/1 var(--game); letter-spacing: .04em; cursor: pointer; }
+.game-btn:hover { color: var(--ink); }
+.game-btn:disabled { color: var(--soft); cursor: default; }
+.game-btn:focus-visible { outline: 1px dashed var(--soft); outline-offset: 4px; }
+
+/* tarot: tres cartas que se dan la vuelta; del revés, la cara aparece girada */
+.spread-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 170px)); justify-content: center; gap: clamp(12px, 3vw, 36px); }
+.tcard { margin: 0; perspective: 900px; }
+.tcard figcaption { margin-top: .7rem; text-align: center; font: 400 17px/1 var(--game); letter-spacing: .1em; color: var(--grey); }
+.tcard-in { position: relative; aspect-ratio: 2 / 3.2; transform-style: preserve-3d; transition: transform .9s var(--ease); }
+.tcard.open .tcard-in { transform: rotateY(180deg); }
+.tcard-back, .tcard-face { position: absolute; inset: 0; border: 1px solid var(--ink); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.tcard-back { background: #fff url(img/games/tarot-backs/1.jpg) center / 80% no-repeat; box-shadow: inset 0 0 0 6px #fff, inset 0 0 0 7px var(--ink); } /* detrás, una de las tintas redondas de vittoria */
+.tcard-face { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 12% 6%; background: #fff; box-shadow: inset 0 0 0 6px #fff, inset 0 0 0 7px var(--ink); transform: rotateY(180deg); }
+.tcard.rev .tcard-face { transform: rotateY(180deg) rotate(180deg); }
+.tc-num { font: 400 18px/1 var(--game); letter-spacing: .1em; }
+.tc-sym { font-size: clamp(34px, 6vw, 56px); line-height: 1; color: var(--plum); }
+.tc-name { font: italic 400 clamp(13px, 1.8vw, 16px)/1.2 var(--serif); text-align: center; }
+
+/* los gatos: duermen y respiran; al acariciarlos ronronean (tiemblan un poco), sale un corazón y dicen algo */
+.cat-row { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; gap: clamp(16px, 5vw, 60px); }
+.cat { position: relative; padding-top: 40px; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.cat:focus-visible { outline: 1px dashed var(--soft); outline-offset: 4px; }
+.cat-svg { display: block; width: 100%; height: auto; }
+.cat-3d { display: block; width: 100%; height: auto; aspect-ratio: 1 / .78; margin-top: -40px; background: none; --poster-color: transparent; } /* marcelo en 3d, quieto */
+.cat-name { display: block; margin-top: 4px; text-align: center; font: 400 34px/1.2 var(--script); letter-spacing: .06em; color: var(--plum); } /* sus nombres, en la letra de los títulos */
+.cat-body { transform-origin: 50% 100%; transform-box: fill-box; animation: breathe-cat 3.6s ease-in-out infinite; }
+@keyframes breathe-cat { 50% { transform: scaleY(1.05); } }
+.cat.purr .cat-svg, .cat.purr .cat-3d { animation: purr .09s linear 14; }
+@keyframes purr { 50% { transform: translate(.6px, -.4px); } }
+.cat-zzz { position: absolute; left: 14%; top: 18px; font: 400 18px/1 var(--game); letter-spacing: .3em; color: var(--grey); animation: zzz 3s ease-in-out infinite; transition: opacity .3s; }
+@keyframes zzz { 50% { transform: translate(6px, -6px); opacity: .5; } }
+.cat.talking .cat-zzz { opacity: 0; }
+.cat-says { position: absolute; left: 50%; top: 0; transform: translate(-50%, 6px); width: max-content; max-width: 110%; font: 400 20px/1.1 var(--game); color: var(--plum); text-align: center; opacity: 0; transition: opacity .3s, transform .3s var(--ease); pointer-events: none; }
+.cat.talking .cat-says { opacity: 1; transform: translate(-50%, 0); }
+.cat.wise .cat-says { font: italic 400 21px/1.25 var(--serif); letter-spacing: .01em; color: var(--ink); } /* el consejo, en la letra del sitio */
+.cat.wise.talking .cat-says { transform: translate(-50%, calc(26px - 100%)); } /* crece hacia arriba: si ocupa dos líneas, no tapa las orejas */
+.cat-heart { position: absolute; top: 45%; font-size: 22px; color: var(--plum); animation: heart 1.4s ease-out forwards; pointer-events: none; }
+@keyframes heart { to { transform: translateY(-70px) scale(1.4); opacity: 0; } }
+@media (max-width: 40rem) {
+  .spread-cards { gap: 10px; }
+  .cat-row { grid-template-columns: 1fr; row-gap: 56px; }
+  .cat.wise .cat-says { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tcard-in { transition: none; }
+  .cat-body, .cat-zzz, .cat.purr .cat-svg, .cat.purr .cat-3d { animation: none; }
+}
+
+/* ── apariciones al hacer scroll ── */
+.js .reveal { opacity: 0; transform: translateY(30px); transition: opacity 1.2s var(--ease), transform 1.2s var(--ease); transition-delay: calc(var(--d, 0) * 140ms); }
+.js .reveal.in { opacity: 1; transform: none; }
+
+/* ── foto que sigue al ratón en el índice: todas en el mismo cuadrado, enteras ── */
+.preview { position: fixed; left: 0; top: 0; z-index: 30; width: 170px; height: 170px; object-fit: contain; pointer-events: none; opacity: 0; transition: opacity .35s ease; will-change: transform; }
+.preview.on { opacity: 1; }
+@media (hover: none) { .preview { display: none; } }
+
+/* ── brillos que suenan: posición y tamaño en % de la imagen (--x, --y, --s) ── */
+.light { position: absolute; left: var(--x); top: var(--y); width: var(--s); aspect-ratio: 1; transform: translate(-50%, -50%); padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.light::before { content: ""; position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .95) 0, rgba(255, 255, 255, .5) 30%, rgba(255, 255, 255, 0) 68%); opacity: 0; transition: opacity 1.6s ease; animation: breathe 5s ease-in-out infinite; pointer-events: none; }
+.light:hover::before, .light:focus-visible::before, .light.on::before { opacity: 1; }
+.light:focus-visible { outline: 1px dashed var(--soft); outline-offset: 6px; }
+.light-hint { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); font: 12px/1 var(--sans); letter-spacing: .06em; color: var(--grey); white-space: nowrap; opacity: 0; transition: opacity .6s; pointer-events: none; }
+.light.needs-touch .light-hint { opacity: 1; }
+@keyframes breathe { 50% { transform: scale(1.12); } }
+
+/* ── pantallas estrechas ── */
+@media (max-width: 84rem) {
+  .index { grid-template-columns: max-content minmax(200px, 1fr); }
+  .idx-fig { grid-column: 2; grid-row: 1 / 4; }
+}
+@media (max-width: 60rem) {
+  .about { grid-template-columns: 1fr; }
+  .about-side { max-width: 26rem; width: 100%; margin: 0 auto; }
+}
+@media (max-width: 40rem) {
+  body { font-size: 16px; }
+  /* en el móvil: el nombre arriba y el menú entero en una línea debajo */
+  .bar { flex-wrap: wrap; row-gap: 8px; padding: 12px 16px 10px; }
+  .bar-nav { width: 100%; justify-content: space-between; gap: .6rem; font-size: 12px; letter-spacing: .02em; white-space: nowrap; }
+  .items { top: 84px; }
+  /* también en el móvil las listas quedan al lado de la chica, que se queda quieta mientras bajas */
+  .index { grid-template-columns: minmax(0, 1fr) 36%; padding: 10vh 16px; gap: 7vh 14px; }
+  .idx-fig { grid-column: 2; grid-row: 1 / 4; align-self: start; position: sticky; top: 80px; width: 100%; }
+  .idx-col h2 { font-size: 2.6rem; margin-left: .2em; }
+  .idx-col li { font-size: 13px; letter-spacing: .07em; white-space: normal; }
+  .bubble { font-size: 12px; max-width: 160%; }
+  .about { padding: 10vh 16px; }
+  .facts { grid-template-columns: 1fr; }
+  .p-head { padding: 18vh 16px 6vh; }
+  .mm-home, .mm-wrap { padding: 18vh 16px 6vh; }
+  .mm-pager { flex-direction: column; }
+  .mm-pager a { max-width: none; }
+  .mm-pager a:last-child { text-align: left; }
+  .p-hero, .p-gallery, .book { padding: 0 16px; }
+  .book-hard { padding: 0 22px; }
+  .p-text { padding: 0 16px; }
+  .p-gallery { gap: 6vh; }
+  .p-hero + .p-gallery { margin-top: 6vh; }
+  .g-pair { gap: 10px; }
+  .g-single.g-wide, .g-single.g-tall { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .oracle-face { transform: translate(-50%, -50%) !important; transition: opacity .8s ease; }
+  .oracle-face::before, .oracle-bob { animation: none; }
+  html { scroll-behavior: auto; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+  .light::before { animation: none; transition: none; }
+  .idx-col a, .p-next strong { transition: none; }
+}
