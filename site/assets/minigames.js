@@ -398,27 +398,42 @@ window.folioGames = (() => {
         clearTimeout(timer);
         timer = setTimeout(() => cat.classList.remove('talking', 'purr', 'wise'), wise ? 4800 : 2600);
       };
-      // cuenta cuánto se mueve el puntero sobre el gato; cada 160 px es una caricia (con el dedo, 110: el gato es
-      // más pequeño). con el ratón basta pasar por encima; con el dedo cuenta mientras está apoyado
-      let down = false;
-      cat.addEventListener('pointerdown', e => {
-        if (e.pointerType === 'mouse') return;
-        down = true;
-        lastX = e.clientX;
-        lastY = e.clientY;
+      // cuenta cuánto se mueve la mano sobre el gato; cada 160 px es una caricia (con el dedo, 90: el gato es más
+      // pequeño). con el ratón basta pasar por encima
+      const move = (x, y, step) => {
+        if (lastX !== null) stroke += Math.hypot(x - lastX, y - lastY);
+        lastX = x;
+        lastY = y;
+        if (stroke > step) { stroke = 0; pet(); }
+      };
+      cat.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') move(e.clientX, e.clientY, 160); });
+      cat.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') lastX = lastY = null; });
+      // con el dedo, los eventos táctiles (los mandan todos los móviles, también el iphone): mientras el dedo va de
+      // lado es una caricia y la página no se mueve; si va hacia arriba o abajo, la página baja como siempre.
+      // un toque sin arrastrar también es una caricia
+      let sx = 0, sy = 0, way = null, moved = 0;
+      cat.addEventListener('touchstart', e => {
+        const t = e.touches[0];
+        sx = lastX = t.clientX;
+        sy = lastY = t.clientY;
+        way = null;
+        moved = 0;
+      }, { passive: true });
+      cat.addEventListener('touchmove', e => {
+        const t = e.touches[0];
+        const dx = Math.abs(t.clientX - sx), dy = Math.abs(t.clientY - sy);
+        if (!way && dx + dy > 8) way = dx >= dy * .8 ? 'pet' : 'scroll';
+        if (way !== 'pet') return;
+        e.preventDefault();
+        moved += Math.abs(t.clientX - lastX) + Math.abs(t.clientY - lastY);
+        move(t.clientX, t.clientY, 90);
+      }, { passive: false });
+      cat.addEventListener('touchend', () => {
+        if (!way && moved === 0) pet();
+        lastX = lastY = null;
       });
-      cat.addEventListener('pointermove', e => {
-        const finger = e.pointerType !== 'mouse';
-        if (finger && !down) return;
-        if (lastX !== null) stroke += Math.hypot(e.clientX - lastX, e.clientY - lastY);
-        lastX = e.clientX;
-        lastY = e.clientY;
-        if (stroke > (finger ? 110 : 160)) { stroke = 0; pet(); }
-      });
-      const lift = () => { down = false; lastX = lastY = null; };
-      ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => cat.addEventListener(t, lift));
+      cat.addEventListener('touchcancel', () => { lastX = lastY = null; });
       cat.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pet(); } });
-      cat.addEventListener('click', e => { if (e.pointerType !== 'mouse') pet(); });
     });
   }
 
