@@ -398,15 +398,25 @@ window.folioGames = (() => {
         clearTimeout(timer);
         timer = setTimeout(() => cat.classList.remove('talking', 'purr', 'wise'), wise ? 4800 : 2600);
       };
-      // cuenta cuánto se mueve el puntero sobre el gato; cada 160 px es una caricia
+      // cuenta cuánto se mueve el puntero sobre el gato; cada 160 px es una caricia (con el dedo, 110: el gato es
+      // más pequeño). con el ratón basta pasar por encima; con el dedo cuenta mientras está apoyado
+      let down = false;
+      cat.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse') return;
+        down = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      });
       cat.addEventListener('pointermove', e => {
-        if (e.pointerType !== 'mouse' && !e.pressure) return;
+        const finger = e.pointerType !== 'mouse';
+        if (finger && !down) return;
         if (lastX !== null) stroke += Math.hypot(e.clientX - lastX, e.clientY - lastY);
         lastX = e.clientX;
         lastY = e.clientY;
-        if (stroke > 160) { stroke = 0; pet(); }
+        if (stroke > (finger ? 110 : 160)) { stroke = 0; pet(); }
       });
-      cat.addEventListener('pointerleave', () => { lastX = lastY = null; });
+      const lift = () => { down = false; lastX = lastY = null; };
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => cat.addEventListener(t, lift));
       cat.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pet(); } });
       cat.addEventListener('click', e => { if (e.pointerType !== 'mouse') pet(); });
     });

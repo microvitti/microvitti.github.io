@@ -417,10 +417,10 @@ figure { margin: 0; }
 
 /* los gatos: duermen y respiran; al acariciarlos ronronean (tiemblan un poco), sale un corazón y dicen algo */
 .cat-row { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; gap: clamp(16px, 5vw, 60px); }
-.cat { position: relative; padding-top: 40px; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.cat { position: relative; padding-top: 40px; cursor: grab; touch-action: pan-y; -webkit-tap-highlight-color: transparent; } /* el dedo acaricia de lado; hacia arriba y abajo la página sigue bajando */
 .cat:focus-visible { outline: 1px dashed var(--soft); outline-offset: 4px; }
 .cat-svg { display: block; width: 100%; height: auto; }
-.cat-3d { display: block; width: 100%; height: auto; aspect-ratio: 1 / .78; margin-top: -40px; background: none; --poster-color: transparent; } /* marcelo en 3d, quieto */
+.cat-3d { display: block; width: 100%; height: auto; aspect-ratio: 1 / .78; margin-top: -40px; background: none; --poster-color: transparent; pointer-events: none; } /* los gatos en 3d, quietos; el dedo y el ratón llegan al gato, no al visor */
 .cat-name { display: block; margin-top: 4px; text-align: center; font: 400 34px/1.2 var(--script); letter-spacing: .06em; color: var(--plum); } /* sus nombres, en la letra de los títulos */
 .cat-body { transform-origin: 50% 100%; transform-box: fill-box; animation: breathe-cat 3.6s ease-in-out infinite; }
 @keyframes breathe-cat { 50% { transform: scaleY(1.05); } }
