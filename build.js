@@ -267,7 +267,7 @@ const out = path => ROOT + '/site/' + (L === 'en' ? '' : L + '/') + path;
 
 // ── home ──
 const indexCol = (sec, d) => `<div class="idx-col idx-${sec} reveal" style="--d:${d}">
-      <h2 class="script">${t(sec)}</h2>
+      <h2 class="script">${t(sec === 'furniture' ? 'sculptural furniture' : sec)}</h2>
       <ul>
         ${PROJECTS.filter(p => p.section === sec).map(p => p.imgs
           ? `<li><a href="${p.slug}/index.html" data-img="${pcut(R0, p.slug)}">${entryLine(p)}</a></li>`
