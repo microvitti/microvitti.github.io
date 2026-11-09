@@ -3,6 +3,9 @@
 // el sitio cambia de página sin recargar (se trae la página nueva y se cambia el contenido).
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // el idioma de la página (en, es o it): los botones que escribe este archivo salen en él. tr(inglés, español, italiano)
+  const LANG = document.documentElement.lang;
+  const tr = (en, es, it) => (LANG === 'es' ? es : LANG === 'it' ? it : en);
   const wait = ms => new Promise(done => setTimeout(done, ms));
   const pause = c => /[,.?!]/.test(c);
   // las bocas de vídeo pintadas en un canvas: algunos navegadores (safari en el iphone, sobre todo) a veces dan un
@@ -274,7 +277,7 @@
   window.folioSfx = sfx; // para los mini juegos
 
   // su nombre sobre las manos: cambia de letra muy deprisa, al azar y nunca dos veces la misma seguida.
-  // con movimiento reducido se queda en la ballet
+  // con movimiento reducido se queda en la letra de los títulos
   function nameFlicker(name) {
     const forms = [...name.querySelectorAll('.nf')];
     if (reduce || forms.length < 2) return;
@@ -431,8 +434,8 @@
       choices.replaceChildren();
       await approach(c);
       if (near !== c) return;
-      if (c.dataset.ask) talk(c.dataset.ask, [['yes', () => go(new URL(c.dataset.go, location.href).href, true)], ['no', idle]]);
-      else talk(c.dataset.closeLine || c.dataset.line, [['put it back', idle]]);
+      if (c.dataset.ask) talk(c.dataset.ask, [[tr('yes', 'sí', 'sì'), () => go(new URL(c.dataset.go, location.href).href, true)], ['no', idle]]);
+      else talk(c.dataset.closeLine || c.dataset.line, [[tr('put it back', 'déjalo en su sitio', 'rimettilo a posto'), idle]]);
     };
     const inspect = i => {
       point(i);
@@ -443,9 +446,9 @@
       leave();
       // «look closer» solo si hay primer plano; si trae un enlace (el mac: la lista de vídeos), se abre aparte
       talk(c.dataset.line, [
-        ...(c.dataset.close ? [['look closer', () => closer(c)]] : []),
+        ...(c.dataset.close ? [[tr('look closer', 'míralo de cerca', 'guarda da vicino'), () => closer(c)]] : []),
         ...(c.dataset.link ? [[c.dataset.linkLabel, () => { open(c.dataset.link, '_blank', 'noopener'); idle() }]] : []),
-        ['leave it', idle],
+        [tr('leave it', 'déjalo', 'lascialo'), idle],
       ]);
     };
     curios.forEach((c, i) => {
@@ -453,7 +456,7 @@
       c.addEventListener('pointerenter', () => point(i));
     });
     tally();
-    wait(reduce ? 0 : 700).then(() => talk(cabinet.dataset.welcome, [['look around', idle]]));
+    wait(reduce ? 0 : 700).then(() => talk(cabinet.dataset.welcome, [[tr('look around', 'mira a tu alrededor', 'guardati intorno'), idle]]));
     game = {
       cabinet,
       key(e) {
@@ -987,7 +990,8 @@
   document.querySelectorAll('head link[href]').forEach(l => l.setAttribute('href', l.href));
   // los enlaces a otras páginas del portfolio se traen con fetch y se cambia el contenido del body;
   // los externos, los mailto y los que abren otra pestaña funcionan como siempre
-  const inside = a => a && a.origin === location.origin && !a.target && !a.hasAttribute('download')
+  // «en · es · it» siempre recarga del todo, para que todo (también los scripts) cambie de idioma
+  const inside = a => a && a.origin === location.origin && !a.target && !a.hasAttribute('download') && !a.hasAttribute('hreflang')
     && /(\.html|\/)$/.test(a.pathname) && !(a.pathname === location.pathname && a.hash);
   async function go(url, push) {
     let html;
@@ -996,6 +1000,11 @@
       if (!res.ok) throw new Error(res.status);
       html = await res.text();
     } catch (e) {
+      location.href = url;
+      return;
+    }
+    // si la página nueva es de otro idioma (el blog solo está en inglés), se carga entera
+    if ((html.match(/<html lang="([a-z]+)"/) || [])[1] !== LANG) {
       location.href = url;
       return;
     }

@@ -2,6 +2,9 @@
 // assets/portfolio-ui.js llama a folioGames.init() cada vez que llega una página (el sitio cambia de página sin recargar).
 window.folioGames = (() => {
   const pickOne = list => list[Math.floor(Math.random() * list.length)];
+  // el idioma de la página (en, es o it): todo lo que dicen la tarotista y los gatos sale en él. tr(inglés, español, italiano)
+  const LANG = document.documentElement.lang;
+  const tr = (en, es, it) => (LANG === 'es' ? es : LANG === 'it' ? it : en);
   const wait = ms => new Promise(done => setTimeout(done, ms));
 
   // escribe una frase letra a letra en un elemento; si llega otra, la anterior se corta
@@ -46,6 +49,58 @@ window.folioGames = (() => {
     ['XX', 'judgement', '✺', 'a call you cannot ignore. listen to it, it is guiding you.', 'you are too hard on yourself. forgive yourself, you are doing well.'],
     ['XXI', 'the world', '◯', 'a cycle comes to an end. you made it. take a moment to celebrate.', 'you are almost there. one last step, and you will be complete.'],
   ];
+  // los mismos arcanos en español y en italiano: [nombre, al derecho, del revés], en el mismo orden
+  const ARCANA_TR = {
+    es: [
+      ['el loco', 'un nuevo comienzo. estás lista para empezar algo, aunque no sepas adónde te lleva. confía en el primer paso.', 'estás al borde, con miedo a empezar. está bien tener miedo. da un pasito pequeño.'],
+      ['el mago', 'ya tienes todo lo que necesitas. tus manos, tus ideas, tu corazón. es hora de usarlos.', 'tus dones están ahí, pero todavía no los usas. cree en lo que puedes hacer.'],
+      ['la sacerdotisa', 'escucha tu voz interior. en el fondo, ya sabes la respuesta.', 'no te estás escuchando. busca un momento de calma y la respuesta llegará.'],
+      ['la emperatriz', 'dulzura, cuidado y cosas que crecen. sé tierna contigo, como lo eres con los demás.', 'cuidas de todo el mundo menos de ti. hoy, que sea tu turno.'],
+      ['el emperador', 'un suelo firme y tranquilo. un plan claro te ayudará a sentirte segura.', 'demasiadas reglas te frenan. tienes permiso para aflojarlas.'],
+      ['el sumo sacerdote', 'aprende de alguien más sabio. está bien pedir consejo.', 'no tienes que seguir el camino de siempre. tu manera también vale.'],
+      ['los enamorados', 'una elección hecha con el corazón. sigue lo que de verdad sientes.', 'tu corazón tira hacia dos lados. tómate tu tiempo, sabrás cuál es el tuyo.'],
+      ['el carro', 'avanza con decisión. ahora eres tú quien guía tu camino.', 'tiras hacia direcciones distintas. elige un camino y lo demás vendrá solo.'],
+      ['la fuerza', 'tu fuerza es dulce. la paciencia y la bondad te llevarán más lejos que la fuerza bruta.', 'dudas de ti, pero eres más fuerte de lo que crees.'],
+      ['el ermitaño', 'un momento tranquilo para mirar hacia dentro. la respuesta está en el silencio.', 'llevas mucho tiempo sola. deja que alguien a quien quieres se acerque.'],
+      ['la rueda de la fortuna', 'las cosas están cambiando, y el cambio traerá algo bueno.', 'un momento difícil, pero pasará. la rueda siempre vuelve a girar.'],
+      ['la justicia', 'honestidad y equilibrio. lo que es justo encontrará el camino hasta ti.', 'algo te parece injusto. dilo con dulzura, pero dilo.'],
+      ['el colgado', 'para y mira las cosas desde otro lado. una nueva mirada te ayudará.', 'llevas demasiado tiempo esperando. es hora de moverse.'],
+      ['la muerte', 'no tengas miedo, no es lo que parece. algo termina para que algo nuevo pueda empezar.', 'te agarras a algo que ya se ha acabado. puedes soltarlo suavemente.'],
+      ['la templanza', 'equilibrio y paciencia. un poco de todo, a su ritmo.', 'algo está desequilibrado. ve más despacio y vuelve a encontrar tu centro.'],
+      ['el diablo', 'algo que quieres también te tiene atrapada. mereces sentirte libre.', 'poco a poco te estás liberando de lo que te ataba. siéntete orgullosa.'],
+      ['la torre', 'un cambio repentino. puede sacudirte, pero deja entrar la luz.', 'un cambio que veías venir. estás preparada, más de lo que crees.'],
+      ['la estrella', 'esperanza, calma y claridad. todo va a salir bien.', 'has perdido un poco de esperanza. mira hacia arriba, las estrellas siguen ahí para ti.'],
+      ['la luna', 'todavía no todo está claro. confía en tu intuición mientras dure la noche.', 'la niebla se está levantando. pronto volverás a ver con claridad.'],
+      ['el sol', 'alegría, calor y luz. disfruta de este buen momento, te lo mereces.', 'una nubecita en un día de sol. la luz sigue ahí detrás.'],
+      ['el juicio', 'una llamada que no puedes ignorar. escúchala, te está guiando.', 'eres demasiado dura contigo. perdónate, lo estás haciendo bien.'],
+      ['el mundo', 'un ciclo llega a su fin. lo has conseguido. tómate un momento para celebrarlo.', 'ya casi estás. un último paso, y estarás completa.'],
+    ],
+    it: [
+      ['il matto', 'un nuovo inizio. sei pronta a cominciare qualcosa, anche senza sapere dove ti porterà. fidati del primo passo.', 'sei sul bordo, con la paura di cominciare. va bene avere paura. fai un piccolo passo.'],
+      ['il bagatto', 'hai già tutto quello che ti serve. le tue mani, le tue idee, il tuo cuore. è il momento di usarli.', 'i tuoi doni ci sono, ma non li stai ancora usando. credi in quello che sai fare.'],
+      ['la papessa', 'ascolta la tua voce interiore. in fondo, conosci già la risposta.', 'non ti stai ascoltando. trova un momento di calma e la risposta arriverà.'],
+      ["l'imperatrice", 'dolcezza, cura e cose che crescono. sii gentile con te stessa, come lo sei con gli altri.', 'ti prendi cura di tutti tranne che di te. oggi, che sia il tuo turno.'],
+      ["l'imperatore", 'un terreno calmo e stabile. un piano chiaro ti aiuterà a sentirti al sicuro.', 'troppe regole ti trattengono. hai il permesso di allentarle.'],
+      ['il papa', 'impara da qualcuno più saggio. va bene chiedere una guida.', 'non devi per forza seguire la strada di sempre. anche la tua è valida.'],
+      ['gli amanti', 'una scelta fatta con il cuore. segui quello che senti davvero.', 'il tuo cuore tira da due parti. prenditi il tuo tempo, capirai qual è la tua strada.'],
+      ['il carro', 'vai avanti con decisione. ora sei tu a guidare il tuo cammino.', 'ti senti tirata in direzioni diverse. scegli una strada, e il resto seguirà.'],
+      ['la forza', 'la tua forza è dolce. pazienza e gentilezza ti porteranno più lontano della forza bruta.', 'stai dubitando di te, ma sei più forte di quanto pensi.'],
+      ["l'eremita", 'un momento tranquillo per guardarti dentro. la risposta si trova nel silenzio.', 'sei stata sola per tanto tempo. lascia che qualcuno a cui vuoi bene si avvicini.'],
+      ['la ruota della fortuna', 'le cose stanno cambiando, e il cambiamento porterà qualcosa di buono.', 'un momento difficile, ma passerà. la ruota gira sempre di nuovo.'],
+      ['la giustizia', 'onestà ed equilibrio. ciò che è giusto troverà la strada fino a te.', 'qualcosa ti sembra ingiusto. dillo con dolcezza, ma dillo.'],
+      ["l'appeso", 'fermati e guarda le cose da un altro lato. un nuovo sguardo ti aiuterà.', 'stai aspettando da troppo tempo. è ora di muoversi.'],
+      ['la morte', 'non avere paura, non è quello che sembra. qualcosa finisce perché qualcosa di nuovo possa cominciare.', 'ti stai aggrappando a qualcosa che è già finito. puoi lasciarlo andare piano piano.'],
+      ['la temperanza', 'equilibrio e pazienza. un po\' di tutto, con i suoi tempi.', 'qualcosa è fuori equilibrio. rallenta e ritrova il tuo centro.'],
+      ['il diavolo', 'qualcosa che ami ti tiene anche bloccata. meriti di sentirti libera.', 'piano piano ti stai liberando di ciò che ti tratteneva. sii fiera di te.'],
+      ['la torre', 'un cambiamento improvviso. può scuoterti, ma fa entrare la luce.', 'un cambiamento che vedevi arrivare. sei pronta, più di quanto credi.'],
+      ['la stella', 'speranza, calma e chiarezza. andrà tutto bene.', 'hai perso un po\' di speranza. guarda in alto, le stelle sono ancora lì per te.'],
+      ['la luna', 'non è ancora tutto chiaro. fidati del tuo intuito finché dura la notte.', 'la nebbia si sta alzando. presto vedrai di nuovo con chiarezza.'],
+      ['il sole', 'gioia, calore e luce. goditi questo bel momento, te lo meriti.', 'una nuvoletta in una giornata di sole. la luce è ancora lì dietro.'],
+      ['il giudizio', 'una chiamata che non puoi ignorare. ascoltala, ti sta guidando.', 'sei troppo dura con te stessa. perdonati, stai andando bene.'],
+      ['il mondo', 'un ciclo arriva alla fine. ce l\'hai fatta. prenditi un momento per festeggiare.', 'ci sei quasi. un ultimo passo, e sarai completa.'],
+    ],
+  };
+  if (ARCANA_TR[LANG]) ARCANA.forEach((c, i) => { [c[1], c[3], c[4]] = ARCANA_TR[LANG][i]; });
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sound = (name, again) => window.folioSfx?.(name, again);
   // la tarotista viva: los brazos y el cuerpo son los de la foto, quietos, y la cabeza se mueve. el vídeo
@@ -243,7 +298,7 @@ window.folioGames = (() => {
       deck = ARCANA.slice().sort(() => Math.random() - .5).slice(0, 3).map(c => ({ c, rev: Math.random() < .3 }));
       // cada carta lleva detrás una de las doce tintas de vittoria (assets/img/games/tarot-backs), sin repetir
       const backs = Array.from({ length: 12 }, (_, i) => i + 1).sort(() => Math.random() - .5);
-      cards.forEach((card, i) => card.querySelector('.tcard-back').style.backgroundImage = `url(../assets/img/games/tarot-backs/${backs[i]}.jpg)`);
+      cards.forEach((card, i) => card.querySelector('.tcard-back').style.backgroundImage = `url(${LANG === 'en' ? '' : '../'}../assets/img/games/tarot-backs/${backs[i]}.jpg)`);
       for (let i = 0; i < 3; i++) {
         if (mine !== turn) return;
         const card = cards[i], { c: [num, name, sym], rev } = deck[i];
@@ -270,19 +325,20 @@ window.folioGames = (() => {
       await wait(reduce ? 0 : 750);
       cards.forEach(card => card.classList.remove('open'));
     };
-    const WHEN = ['the past: ', 'the present: ', 'the future: '];
-    const welcome = () => say('hello, come in and sit with me. i will read the cards for you.', [['sit down', ask], ['not today', notToday]]);
-    const notToday = () => say('that is alright. i will be here whenever you are ready.', [['i am ready now', ask]]);
-    const ask = () => say('close your eyes and think of a question. you can keep it to yourself, the cards will hear it.', [['i have one', shuffle]]);
+    const WHEN = [tr('the past: ', 'el pasado: ', 'il passato: '), tr('the present: ', 'el presente: ', 'il presente: '), tr('the future: ', 'el futuro: ', 'il futuro: ')];
+    const TURN_FIRST = tr('turn the first', 'gira la primera', 'gira la prima'), NEXT_CARD = tr('next card', 'siguiente carta', 'prossima carta');
+    const welcome = () => say(tr('hello, come in and sit with me. i will read the cards for you.', 'hola, pasa y siéntate conmigo. te voy a leer las cartas.', 'ciao, entra e siediti con me. ti leggerò le carte.'), [[tr('sit down', 'sentarme', 'mi siedo'), ask], [tr('not today', 'hoy no', 'oggi no'), notToday]]);
+    const notToday = () => say(tr('that is alright. i will be here whenever you are ready.', 'no pasa nada. estaré aquí cuando estés lista.', 'va bene così. sarò qui quando sarai pronta.'), [[tr('i am ready now', 'ya estoy lista', 'ora sono pronta'), ask]]);
+    const ask = () => say(tr('close your eyes and think of a question. you can keep it to yourself, the cards will hear it.', 'cierra los ojos y piensa en una pregunta. puedes guardártela, las cartas la oirán.', 'chiudi gli occhi e pensa a una domanda. puoi tenerla per te, le carte la sentiranno.'), [[tr('i have one', 'ya la tengo', 'ce l\'ho'), shuffle]]);
     const shuffle = async () => {
       busy();
       sound('shuffle');
-      if (!(await say('i am shuffling the cards, slowly, with your question in mind.', []))) return;
+      if (!(await say(tr('i am shuffling the cards, slowly, with your question in mind.', 'estoy barajando las cartas, despacio, pensando en tu pregunta.', 'sto mescolando le carte, piano, pensando alla tua domanda.'), []))) return;
       const mine = turn;
       await wait(reduce ? 0 : 700);
       await deal(mine);
       if (mine !== turn) return;
-      say('here are three cards: the past, the present and the future. let us look at them one by one.', [['turn the first', () => reveal(0)]]);
+      say(tr('here are three cards: the past, the present and the future. let us look at them one by one.', 'aquí tienes tres cartas: el pasado, el presente y el futuro. vamos a verlas una a una.', 'ecco tre carte: il passato, il presente e il futuro. guardiamole una alla volta.'), [[TURN_FIRST, () => reveal(0)]]);
     };
     const reveal = async i => {
       const mine = busy();
@@ -291,18 +347,18 @@ window.folioGames = (() => {
       await wait(reduce ? 0 : 800);
       if (mine !== turn) return;
       const { c: [, name, , up, down], rev } = deck[i];
-      say(`${WHEN[i]}${name}${rev ? ', upside down' : ''}. ${rev ? down : up}`, i < 2 ? [['next card', () => reveal(i + 1)]] : [['and so?', end]]);
+      say(`${WHEN[i]}${name}${rev ? tr(', upside down', ', del revés', ', capovolta') : ''}. ${rev ? down : up}`, i < 2 ? [[NEXT_CARD, () => reveal(i + 1)]] : [[tr('and so?', '¿y entonces?', 'e quindi?'), end]]);
     };
-    const end = () => say('that is your reading. the cards show the way, but every step is yours.', [['read again', again], ['thank you', bye]]);
+    const end = () => say(tr('that is your reading. the cards show the way, but every step is yours.', 'esta es tu lectura. las cartas enseñan el camino, pero cada paso es tuyo.', 'questa è la tua lettura. le carte mostrano la strada, ma ogni passo è tuo.'), [[tr('read again', 'léemelas otra vez', 'leggile ancora'), again], [tr('thank you', 'gracias', 'grazie'), bye]]);
     const again = async () => {
       const mine = busy();
       await gather();
       if (mine === turn) ask();
     };
-    const bye = () => say('thank you for sitting with me. come back whenever you need a little light.', [['back to the games', '../mini-games/index.html#tarot']]);
+    const bye = () => say(tr('thank you for sitting with me. come back whenever you need a little light.', 'gracias por sentarte conmigo. vuelve cuando necesites un poco de luz.', 'grazie di esserti seduta con me. torna quando hai bisogno di un po\' di luce.'), [[tr('back to the games', 'volver a los juegos', 'torna ai giochi'), '../mini-games/index.html#tarot']]);
     // las cartas ya repartidas también se giran tocándolas, en su orden
     cards.forEach((card, i) => card.addEventListener('click', () => {
-      const next = options.find(([label]) => label === 'turn the first' || label === 'next card');
+      const next = options.find(([label]) => label === TURN_FIRST || label === NEXT_CARD);
       if (card.classList.contains('dealt') && !card.classList.contains('open') && next && cards.findIndex(c => !c.classList.contains('open')) === i) next[1]();
     }));
     wait(reduce ? 0 : 900).then(welcome);
@@ -325,6 +381,7 @@ window.folioGames = (() => {
   // ───────── pet my cats ─────────
   // al acariciarlos (pasar el ratón o el dedo por encima, unas cuantas veces) ronronean, sale un corazón y dicen
   // una frase de gato; si se les acaricia lo bastante (cada cuatro caricias) te dan uno de sus consejos
+  // todo lo que dicen los gatos (consejos y frases) va siempre en inglés, también en las versiones en español e italiano: no se traduce nunca
   const ADVICE = {
     juanki: [
       'decisions are portals.',
