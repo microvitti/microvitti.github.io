@@ -188,7 +188,7 @@ function folioDoc({ pre, R = pre, path, title, desc, body, cls }) {
 <link rel="icon" href="${R}assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Ballet:opsz@16..72&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Source+Sans+3:wght@400;500&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Pinyon+Script&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Source+Sans+3:wght@400;500&family=VT323&display=swap">
 <link rel="stylesheet" href="${R}assets/portfolio.css?v=${VER}">
 <script>document.documentElement.classList.add('js');try{if(sessionStorage.getItem('intro-seen'))document.documentElement.classList.add('intro-seen')}catch(e){}</script>
 </head>
@@ -218,7 +218,7 @@ ${body}
 // (cursiva fina, palo seco negro, pincel, bodoni estrecha, cursiva de píxeles, píxeles finos, mayúsculas de cartel y
 // redonda gorda), con letras de verdad. [familia, tamaño]
 const HOLI_FORMS = [
-  ['Archivo', .55], ["'Archivo Black'", .75], ["'Kaushan Script'", 1.02], ["'Abril Fatface'", .85],
+  ["'Pinyon Script'", 1.6], ["'Archivo Black'", .75], ["'Kaushan Script'", 1.02], ["'Abril Fatface'", .85],
   ["'FT88 School'", .5], ['VT323', .88], ['Limelight', .71], ["'Bagel Fat One'", .92],
 ];
 const flick = (word, extra = '') => `<h1 class="mm-flick${extra} reveal" aria-label="${word}">${HOLI_FORMS.map(([f, k], i) => `<span class="nf${i ? '' : ' on'}" style="font-family:${f};font-size:${k}em" aria-hidden="true">${word}</span>`).join('')}</h1>`;
@@ -277,7 +277,7 @@ const indexCol = (sec, d) => `<div class="idx-col idx-${sec} reveal" style="--d:
       </ul>
     </div>`;
 
-// sobre las manos, su nombre cambia de letra muy deprisa (assets/portfolio-ui.js): la archivo expanded del sitio y otras siete,
+// sobre las manos, su nombre cambia de letra muy deprisa (assets/portfolio-ui.js): la pinyon script del sitio y otras siete,
 // calcadas en vectores de las capturas que mandó vittoria (originali/microvitti/), todas al mismo cuerpo de letra.
 // se respeta ese tamaño: [número, ancho en las capturas]; la más ancha (614) ocupa el 88 % del ancho de las manos
 const NAMES = [[2, 596], [3, 494], [4, 424], [5, 614], [6, 586], [7, 520], [8, 585]];
