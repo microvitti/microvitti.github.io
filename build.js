@@ -230,8 +230,8 @@ const CV = {
     desc: 'the cv of vittoria scalmati.',
     labels: { study: 'education', skills: 'skills', langs: 'languages', mail: 'contact' },
     study: [
-      ['2023–2024', 'politecnico di milano | poli.design', 'milano', 'furniture design master · 110/110', ['structural design', 'material manipulation', 'history of design']],
-      ['2019–2022', 'fine arts', 'urbino', 'fine arts degree · 110/110', ['printmaking', 'material textures', 'visual culture']],
+      ['2023–2024', 'politecnico di milano | poli.design', 'milano', 'furniture design master', ['structural design', 'material manipulation', 'history of design']],
+      ['2019–2022', 'fine arts', 'urbino', 'fine arts degree', ['printmaking', 'material textures', 'visual culture']],
     ],
     skills: ['adobe creative suite', 'artistic mixed media', 'ai image & video workflows', '3d model making', 'analog photography', 'creative direction', 'styling', 'printmaking & engraving', 'drawing & painting', 'sculpture', 'furniture design', 'editorial design', 'exhibition design', 'material experimentation'],
     langs: ['italian | native', 'spanish | fluent', 'english | fluent', 'french | b2'],
@@ -240,8 +240,8 @@ const CV = {
     desc: 'el cv de vittoria scalmati.',
     labels: { study: 'formación', skills: 'habilidades', langs: 'idiomas', mail: 'contacto' },
     study: [
-      ['2023–2024', 'politecnico di milano | poli.design', 'milano', 'furniture design master · 110/110', ['diseño estructural', 'manipulación de materiales', 'historia del diseño']],
-      ['2019–2022', 'accademia belle arti', 'urbino', 'fine arts degree · 110/110', ['grabado', 'texturas de materiales', 'fotografía analógica']],
+      ['2023–2024', 'politecnico di milano | poli.design', 'milano', 'furniture design master', ['diseño estructural', 'manipulación de materiales', 'historia del diseño']],
+      ['2019–2022', 'accademia belle arti', 'urbino', 'fine arts degree', ['grabado', 'texturas de materiales', 'fotografía analógica']],
     ],
     skills: ['adobe creative suite', 'técnicas mixtas artísticas', 'flujos de trabajo de imagen y vídeo con ia', 'modelado 3d', 'fotografía analógica', 'dirección creativa', 'estilismo', 'grabado', 'dibujo y pintura', 'escultura', 'diseño de mobiliario', 'diseño editorial', 'montaje de exposiciones', 'experimentación con materiales'],
     langs: ['italiano | nativo', 'español | fluido (c2)', 'inglés | fluido (c2)', 'francés | b2'],
@@ -414,7 +414,7 @@ READING.forEach((p, k) => {
     body: `<main>
   <section class="p-head">
     <h1 class="p-title${t(p.title).length > 16 ? ' p-title-long' : ''} script reveal">${t(p.title)}</h1>
-    ${p.type && !(p.book && !p.bookBelow) ? `<p class="p-type reveal" style="--d:2">${t(p.type)}</p>` : ''}
+    ${p.type && t(p.type) !== t(p.title) && !(p.book && !p.bookBelow) ? `<p class="p-type reveal" style="--d:2">${t(p.type)}</p>` : ''}
   </section>
   ${p.book && !p.bookBelow ? bookFig(p) : `<figure class="p-hero${p.hero ? ' p-hero-cut' : ''} reveal" style="--d:2">${/\.mp4$/.test(p.hero?.[0] || '') ? `<video src="${hsrc}"${p.hero[3] ? ` poster="${R1}assets/img/${p.slug}/${p.hero[3]}?v=${VER}"` : ''} width="${hw}" height="${hh}" autoplay muted loop playsinline preload="auto" aria-label="${attr(t(p.title))}"></video>` : `<img src="${hsrc}" alt="${attr(t(p.title))}" width="${hw}" height="${hh}">`}</figure>`}
   ${p.textBelow ? '' : ptext}
