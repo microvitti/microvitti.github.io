@@ -10,6 +10,19 @@ function write(p, s) {
 }
 const attr = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 const ROOT = ObjC.unwrap($.NSProcessInfo.processInfo.arguments).map(ObjC.unwrap).slice(-1)[0];
+// el sitio en tres idiomas: inglés en la raíz, español en es/ e italiano en it/. aquí los textos están en inglés y
+// traduzioni.js tiene cada uno en español y en italiano; lo que falte allí se queda en inglés y se avisa al terminar.
+// las fotos, los vídeos, los libros y el blog no se repiten: todas las versiones usan los de la raíz
+const LANGS = ['en', 'es', 'it'];
+const TR = eval(ObjC.unwrap($.NSString.stringWithContentsOfFileEncodingError(ROOT + '/traduzioni.js', $.NSUTF8StringEncoding, null)));
+let L = 'en';
+const missing = new Set();
+const t = s => {
+  if (L === 'en' || !s) return s;
+  if (TR[s] && TR[s][L] != null) return TR[s][L];
+  missing.add(s);
+  return s;
+};
 
 const PROJECTS = [
   { slug: 'ejercicio-de-grabado-sobre-mueble', title: 'ejercicio de grabado sobre mueble', section: 'furniture', kind: 'furniture', year: '2026' },
@@ -105,21 +118,21 @@ const PROJECTS = [
     // assets/img/museo/book/01.jpg… de 2600 × 1320
     book: 94, bookAt: 46, bookSize: [2600, 1320], bookStyle: 'hard', bookBelow: true,
   },
-  { slug: 'micromina-blog', title: 'micromina blog', section: 'editorials', kind: 'editor', year: '2026', href: 'micromina/index.html' }, // el blog, dentro del sitio (al final de este archivo)
+  { slug: 'micromina-blog', title: 'microblogging', section: 'editorials', kind: 'editor', year: '2026', href: 'micromina/index.html' }, // el blog, dentro del sitio (al final de este archivo)
 ];
 const SHOWN = PROJECTS.filter(p => p.imgs);
 // orden de lectura para «next»: furniture → editorials → art, como en el índice
 const READING = ['morso', 'lazito', 'silla-mostruosa', 'budicca', 'thesis', 'coat-hanger-book', 'museo', 'generative-photography', 'ejercicio-de-direccion', '3d-sculpture'].map(s => SHOWN.find(p => p.slug === s));
 
 // brillo que suena: [x, y, tamaño] en % de la imagen
-const light = ([x, y, s]) => `<button class="light" type="button" style="--x:${x}%;--y:${y}%;--s:${s}%" aria-label="make the light sing" aria-pressed="false"><span class="light-hint">touch the light</span></button>`;
+const light = ([x, y, s]) => `<button class="light" type="button" style="--x:${x}%;--y:${y}%;--s:${s}%" aria-label="${t('make the light sing')}" aria-pressed="false"><span class="light-hint">${t('touch the light')}</span></button>`;
 // la pantalla del principio, antes de bajar: un cuadro de diálogo de videojuego que se escribe solo,
 // avisa de que casi todo se puede tocar e invita a empezar (assets/portfolio-ui.js); al pulsar «start» suena un clic metálico
 const intro = words => `<div class="intro" data-say="${attr(words)}">
   <div class="intro-box" role="dialog" aria-label="${attr(words)}">
     <p class="oracle-name">vittoria scalmati · portfolio</p>
     <p class="oracle-text" aria-hidden="true"></p>
-    <button class="intro-start" type="button">start ▸</button>
+    <button class="intro-start" type="button">${t('start ▸')}</button>
   </div>
 </div>`;
 // cada build cambia este número en los enlaces al css y al js, para que el navegador no use una copia vieja
@@ -128,19 +141,19 @@ const VER = Date.now().toString(36);
 // como los videojuegos de la primera playstation, y al terminar cierra los ojos y sonríe (assets/portfolio-ui.js).
 // face.png (ojos abiertos) y face-smile.png (ojos cerrados, sonriendo) tienen el mismo encuadre. mientras habla,
 // sobre la boca de face.png se pinta solo la boca del vídeo face.mp4 (sin sonido), con los bordes difuminados
-const oracle = words => `<div class="oracle" data-say="${attr(words)}">
+const oracle = (words, R) => `<div class="oracle" data-say="${attr(words)}">
   <div class="oracle-face">
     <div class="oracle-bob">
-      <img src="assets/img/home/face.png" alt="" width="468" height="690">
-      <video class="face-video" src="assets/video/face.mp4?v=${VER}" muted playsinline preload="auto" aria-hidden="true" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
+      <img src="${R}assets/img/home/face.png" alt="" width="468" height="690">
+      <video class="face-video" src="${R}assets/video/face.mp4?v=${VER}" muted playsinline preload="auto" aria-hidden="true" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
       <canvas class="face-mouth" width="460" height="340"></canvas>
-      <img class="face-smile" src="assets/img/home/face-smile.png" alt="" width="468" height="690" loading="lazy">
+      <img class="face-smile" src="${R}assets/img/home/face-smile.png" alt="" width="468" height="690" loading="lazy">
     </div>
   </div>
   <div class="oracle-box" role="dialog" aria-label="${attr(words)}">
     <p class="oracle-name">vittoria</p>
     <p class="oracle-text" aria-hidden="true"></p>
-    <button class="oracle-close" type="button" aria-label="close">✕</button>
+    <button class="oracle-close" type="button" aria-label="${t('close')}">✕</button>
   </div>
 </div>`;
 // chica que habla al tocarla, sin sonido (assets/portfolio-ui.js): lo que dice, dónde empieza la cabeza (% desde arriba,
@@ -151,25 +164,30 @@ const oracle = words => `<div class="oracle" data-say="${attr(words)}">
 // seg = el trozo del vídeo que dice la frase, que empieza y acaba con la boca cerrada; tone = [a, b] por canal (r, g, b)
 // para que el color del vídeo sea el de la foto (a × vídeo + b, medido con la boca cerrada); grain = la grana de la foto;
 // ask = respuestas que aparecen al terminar la frase (las dos llevan al contacto) y reply = lo que contesta entonces
-const talker = (words, head, { photo: [W, H], map: [s, ox, oy], c: [cx, cy], w, seg, tone, grain, ask, reply }) => {
+const talker = (words, head, { photo: [W, H], map: [s, ox, oy], c: [cx, cy], w, seg, tone, grain, ask, reply }, R) => {
+  words = t(words);
   const rx = .95 * w, up = .42 * w, down = .7 * w;
   const x0 = cx - rx, y0 = cy - up, pw = 2 * rx, ph = up + down;
   const k = Math.max(2, 240 / pw);
   const src = [(x0 - ox) / s, (y0 - oy) / s, pw / s, ph / s].map(n => n.toFixed(2)).join(',');
   const pc = (a, b) => `${(a / b * 100).toFixed(3)}%`;
-  return `<video class="mouth-video" src="assets/video/girl.mp4?v=${VER}" muted playsinline preload="auto" aria-hidden="true" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
+  return `<video class="mouth-video" src="${R}assets/video/girl.mp4?v=${VER}" muted playsinline preload="auto" aria-hidden="true" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
       <canvas class="mouth-live" width="${Math.round(pw * k)}" height="${Math.round(ph * k)}" data-src="${src}" data-seg="${seg.join(',')}" data-tone="${tone.join(',')}" data-grain="${grain.join(',')}" data-k="${k.toFixed(3)}" data-up="${(up / ph).toFixed(4)}" style="left:${pc(x0, W)};top:${pc(y0, H)};width:${pc(pw, W)}" aria-hidden="true"></canvas>
-      <button class="talk" type="button" aria-label="say: ${attr(words)}"></button>
-      <span class="bubble" style="--by:${head}%" aria-live="polite"${reply ? ` data-reply="${attr(reply)}"` : ''}><span class="bubble-text">${words}</span>${ask ? `<span class="bubble-choices">${ask.map(a => `<a href="#contact">${a}</a>`).join('')}</span>` : ''}</span>`;
+      <button class="talk" type="button" aria-label="${attr(t('say:'))} ${attr(words)}"></button>
+      <span class="bubble" style="--by:${head}%" aria-live="polite"${reply ? ` data-reply="${attr(t(reply))}"` : ''}><span class="bubble-text">${words}</span>${ask ? `<span class="bubble-choices">${ask.map(a => `<a href="#contact">${t(a)}</a>`).join('')}</span>` : ''}</span>`;
 };
 const pimg = (pre, slug, i, ext = 'jpg') => `${pre}assets/img/${slug}/${i}.${ext}?v=${VER}`;
 // la foto que sigue al ratón: el proyecto recortado, sin fondo (assets/img/<slug>/cutout.png)
 const pcut = (pre, slug) => `${pre}assets/img/${slug}/cutout.png?v=${VER}`;
-const entryLine = p => `${p.title} <i>|</i> ${p.kind ? p.kind + ' <i>|</i> ' : ''}${p.year}`;
+const entryLine = p => `${t(p.title)} <i>|</i> ${p.kind ? t(p.kind) + ' <i>|</i> ' : ''}${p.year}`;
 
-function folioDoc({ pre, title, desc, body, cls }) {
+// pre lleva a la portada de su idioma, R a la raíz del sitio (donde están assets/ y el blog); path es esta página
+// dentro de su idioma, para que «en · es · it» lleve a la misma en el otro (sin path, como en el blog, no sale)
+function folioDoc({ pre, R = pre, path, title, desc, body, cls }) {
+  const langs = path == null ? '' : `
+  <nav class="bar-lang" aria-label="language">${LANGS.map(l => `<a href="${R}${l === 'en' ? '' : l + '/'}${path}" hreflang="${l}" lang="${l}"${l === L ? ' aria-current="true"' : ''}>${l}</a>`).join('<i>·</i>')}</nav>`;
   return `<!doctype html>
-<html lang="en">
+<html lang="${L}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -177,11 +195,11 @@ function folioDoc({ pre, title, desc, body, cls }) {
 <meta name="description" content="${attr(desc)}">
 <meta property="og:title" content="${attr(title)}">
 <meta property="og:description" content="${attr(desc)}">
-<link rel="icon" href="${pre}assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="${R}assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Source+Sans+3:wght@400;500&family=VT323&display=swap">
-<link rel="stylesheet" href="${pre}assets/portfolio.css?v=${VER}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Pinyon+Script&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Source+Sans+3:wght@400;500&family=VT323&display=swap">
+<link rel="stylesheet" href="${R}assets/portfolio.css?v=${VER}">
 <script>document.documentElement.classList.add('js');try{if(sessionStorage.getItem('intro-seen'))document.documentElement.classList.add('intro-seen')}catch(e){}</script>
 </head>
 <body class="${cls}">
@@ -189,52 +207,106 @@ function folioDoc({ pre, title, desc, body, cls }) {
   <a class="bar-name" href="${pre}index.html">vittoria scalmati</a>
   <nav class="bar-nav" aria-label="portfolio">
     <a href="${pre}index.html#index">portfolio</a>
-    <a href="${pre}index.html#about">about</a>
-    <a href="${pre}creative-process/index.html">creative process</a>
-    <a href="${pre}index.html#contact">contact</a>
-  </nav>
+    <a href="${pre}index.html#about">${t('about')}</a>
+    <a href="${pre}creative-process/index.html">${t('creative process')}</a>
+    <a href="${pre}cv/index.html">cv</a>
+    <a href="${pre}index.html#contact">${t('contact')}</a>
+  </nav>${langs}
 </header>
 ${body}
-<a class="games-link" href="${pre}mini-games/index.html">mini games ▸</a>
+<a class="games-link" href="${pre}mini-games/index.html">${t('mini games ▸')}</a>
 <img class="preview" alt="" aria-hidden="true">
-<script src="${pre}assets/minigames.js?v=${VER}" defer></script>
-<script src="${pre}assets/portfolio-ui.js?v=${VER}" defer></script>
-<script src="${pre}assets/portfolio.js?v=${VER}" defer></script>
+<script src="${R}assets/minigames.js?v=${VER}" defer></script>
+<script src="${R}assets/portfolio-ui.js?v=${VER}" defer></script>
+<script src="${R}assets/portfolio.js?v=${VER}" defer></script>
 </body>
 </html>
 `;
 }
 
+// el «holi,» de la portada del blog y el «cv» cambian de letra sin parar, como «microvitti» en las manos: las mismas ocho maneras
+// (cursiva fina, palo seco negro, pincel, bodoni estrecha, cursiva de píxeles, píxeles finos, mayúsculas de cartel y
+// redonda gorda), con letras de verdad. [familia, tamaño]
+const HOLI_FORMS = [
+  ["'Pinyon Script'", 1.6], ["'Archivo Black'", .75], ["'Kaushan Script'", 1.02], ["'Abril Fatface'", .85],
+  ["'FT88 School'", .5], ['VT323', .88], ['Limelight', .71], ["'Bagel Fat One'", .92],
+];
+const flick = (word, extra = '') => `<h1 class="mm-flick${extra} reveal" aria-label="${word}">${HOLI_FORMS.map(([f, k], i) => `<span class="nf${i ? '' : ' on'}" style="font-family:${f};font-size:${k}em" aria-hidden="true">${word}</span>`).join('')}</h1>`;
+// el cv, sin experiencia laboral ni perfil: la formación y las habilidades. cada idioma lleva lo suyo, copiado de su pdf (en originales: «cv vittoria scalmati english 07:26 archival»,
+// «cv esp vittoria scalmati 2026 archival» y «cv italiano vittoria scalmati»), así que no son idénticos. de los datos
+// personales solo sale el correo: ni teléfono, ni dirección, ni año de nacimiento
+const CV = {
+  en: {
+    desc: 'the cv of vittoria scalmati.',
+    labels: { study: 'education', skills: 'skills', langs: 'languages', mail: 'contact' },
+    study: [
+      ['2023–2024', 'politecnico di milano | poli.design', 'milano', 'furniture design master', ['structural design', 'material manipulation', 'history of design']],
+      ['2019–2022', 'fine arts', 'urbino', 'fine arts degree', ['printmaking', 'material textures', 'visual culture']],
+    ],
+    skills: ['adobe creative suite', 'artistic mixed media', 'ai image & video workflows', '3d model making', 'analog photography', 'creative direction', 'styling', 'printmaking & engraving', 'drawing & painting', 'sculpture', 'furniture design', 'editorial design', 'exhibition design', 'material experimentation'],
+    langs: ['italian | native', 'spanish | fluent', 'english | fluent', 'french | b2'],
+  },
+  es: {
+    desc: 'el cv de vittoria scalmati.',
+    labels: { study: 'formación', skills: 'habilidades', langs: 'idiomas', mail: 'contacto' },
+    study: [
+      ['2023–2024', 'politecnico di milano | poli.design', 'milano', 'furniture design master', ['diseño estructural', 'manipulación de materiales', 'historia del diseño']],
+      ['2019–2022', 'accademia belle arti', 'urbino', 'fine arts degree', ['grabado', 'texturas de materiales', 'fotografía analógica']],
+    ],
+    skills: ['adobe creative suite', 'técnicas mixtas artísticas', 'flujos de trabajo de imagen y vídeo con ia', 'modelado 3d', 'fotografía analógica', 'dirección creativa', 'estilismo', 'grabado', 'dibujo y pintura', 'escultura', 'diseño de mobiliario', 'diseño editorial', 'montaje de exposiciones', 'experimentación con materiales'],
+    langs: ['italiano | nativo', 'español | fluido (c2)', 'inglés | fluido (c2)', 'francés | b2'],
+  },
+  it: {
+    desc: 'il cv di vittoria scalmati.',
+    labels: { study: 'istruzione e formazione', skills: 'competenze', langs: 'lingue', mail: 'contatti' },
+    study: [
+      ['2023–2024', 'master furniture design', 'politecnico di milano', '', ['progettazione di mobili', 'ricerca concettuale', 'sviluppo del prodotto', 'materiali', 'tecniche costruttive', 'sperimentazione progettuale']],
+      ['2019–2022', 'grafica d’arte', 'accademia di belle arti di urbino', '', ['grafica', 'stampa d’arte', 'fotografia', 'progettazione visiva', 'ricerca artistica', 'sperimentazione di tecniche e linguaggi']],
+    ],
+    skills: ['adobe creative suite', 'tecniche miste artistiche', 'workflow di immagini e video con ai', 'modellazione 3d', 'fotografia analogica', 'direzione creativa', 'styling', 'stampa d’arte e incisione', 'disegno e pittura', 'scultura', 'furniture design', 'editorial design', 'allestimento di mostre', 'sperimentazione con i materiali'],
+    langs: ['italiano | madrelingua', 'inglese | advanced c2', 'spagnolo | advanced c2', 'francese | intermedio b2'],
+  },
+};
+
+// ── las páginas, una vez por idioma ──
+LANGS.forEach(lang => {
+L = lang;
+// R0 lleva a la raíz desde la portada de cada idioma, R1 desde una página que está una carpeta más abajo
+const R0 = L === 'en' ? '' : '../', R1 = '../' + R0;
+const out = path => ROOT + '/site/' + (L === 'en' ? '' : L + '/') + path;
+
 // ── home ──
 const indexCol = (sec, d) => `<div class="idx-col idx-${sec} reveal" style="--d:${d}">
-      <h2 class="script">${sec}</h2>
+      <h2 class="script">${t(sec === 'furniture' ? 'sculptural furniture' : sec)}</h2>
       <ul>
         ${PROJECTS.filter(p => p.section === sec).map(p => p.imgs
-          ? `<li><a href="${p.slug}/index.html"${p.cutout === false ? '' : ` data-img="${pcut('', p.slug)}"`}>${entryLine(p)}</a></li>`
+          ? `<li><a href="${p.slug}/index.html"${p.cutout === false ? '' : ` data-img="${pcut(R0, p.slug)}"`}>${entryLine(p)}</a></li>`
           : p.href
-            ? `<li><a href="${p.href}">${entryLine(p)}</a></li>`
-            : `<li class="soon"><span>${entryLine(p)}</span></li>`).join('\n        ')}
+            ? `<li><a href="${R0}${p.href}">${entryLine(p)}</a></li>`
+            : `<li class="soon"><span data-soon="${t('soon')}">${entryLine(p)}</span></li>`).join('\n        ')}
       </ul>
     </div>`;
 
-// sobre las manos, su nombre cambia de letra muy deprisa (assets/portfolio-ui.js): la ballet del sitio y otras siete,
+// sobre las manos, su nombre cambia de letra muy deprisa (assets/portfolio-ui.js): la pinyon script del sitio y otras siete,
 // calcadas en vectores de las capturas que mandó vittoria (originali/microvitti/), todas al mismo cuerpo de letra.
 // se respeta ese tamaño: [número, ancho en las capturas]; la más ancha (614) ocupa el 88 % del ancho de las manos
 const NAMES = [[2, 596], [3, 494], [4, 424], [5, 614], [6, 586], [7, 520], [8, 585]];
-write(ROOT + '/site/index.html', folioDoc({
+write(out('index.html'), folioDoc({
   pre: '',
+  R: R0,
+  path: 'index.html',
   title: 'vittoria scalmati · portfolio',
-  desc: 'vittoria scalmati — furniture design, art, editorials. 2026.',
+  desc: t('vittoria scalmati — furniture design, art, editorials. 2026.'),
   cls: 'home',
-  body: `${intro("hi, welcome in. almost everything here is alive. you can play with it if you please. nothing breaks. ready?")}
+  body: `${intro(t("hi, welcome in. almost everything here is alive. you can play with it if you please. nothing breaks. ready?"))}
 <main>
   <section class="hands" aria-label="portfolio">
     <figure class="hands-fig reveal">
-      <img src="assets/img/home/hands.jpg" alt="two open hands with little lights in their palms" width="766" height="614">
-      <h1 class="hands-name" aria-label="microvitti"><span class="nf nf-script script on" aria-hidden="true">microvitti</span>${NAMES.map(([n, a]) => `<img class="nf" src="assets/img/home/microvitti-${n}.svg?v=${VER}" alt="" aria-hidden="true" style="width:${(88 * a / 614).toFixed(1)}%">`).join('')}</h1>
+      <img src="${R0}assets/img/home/hands.jpg" alt="${t('two open hands with little lights in their palms')}" width="766" height="614">
+      <h1 class="hands-name" aria-label="microvitti"><span class="nf nf-script script on" aria-hidden="true">microvitti</span>${NAMES.map(([n, a]) => `<img class="nf" src="${R0}assets/img/home/microvitti-${n}.svg?v=${VER}" alt="" aria-hidden="true" style="width:${(88 * a / 614).toFixed(1)}%">`).join('')}</h1>
       ${[[32, 43, 12], [57.4, 69.2, 12]].map(light).join('\n      ')}
     </figure>
-    <p class="hands-sub reveal" style="--d:2">visual artist – furniture designer – editor</p>
+    <p class="hands-sub reveal" style="--d:2">${t('visual artist – furniture designer – editor')}</p>
   </section>
 
   <section class="index" id="index">
@@ -242,8 +314,8 @@ write(ROOT + '/site/index.html', folioDoc({
     ${indexCol('editorials', 1)}
     ${indexCol('art', 2)}
     <figure class="idx-fig reveal" style="--d:3">
-      <img src="assets/img/home/tree.jpg" alt="vittoria in tree pose, a light between her hands" width="806" height="1034" loading="lazy">
-      ${talker('hello spiritual gangsta', 11, { photo: [806, 1034], map: [.27, 219.48, 200.48], c: [390.85, 218.97], w: 29.7, seg: [.3, 3.3], tone: [.85, 38.6, .85, 40.1, .85, 40.2], grain: [3.9, 5.7, 5.7] })}
+      <img src="${R0}assets/img/home/tree.jpg" alt="${t('vittoria in tree pose, a light between her hands')}" width="806" height="1034" loading="lazy">
+      ${talker('hello spiritual gangsta', 11, { photo: [806, 1034], map: [.27, 219.48, 200.48], c: [390.85, 218.97], w: 29.7, seg: [.3, 3.3], tone: [.85, 38.6, .85, 40.1, .85, 40.2], grain: [3.9, 5.7, 5.7] }, R0)}
       ${light([50, 32, 20])}
     </figure>
   </section>
@@ -251,44 +323,45 @@ write(ROOT + '/site/index.html', folioDoc({
   <section class="about" id="about">
     <div class="about-side">
       <figure class="about-fig reveal">
-        <img src="assets/img/home/about.jpg" alt="vittoria, hands together, a light between them" width="894" height="1034" loading="lazy">
-        ${talker('stop looking for a sign. you are ready to hire me.', 6.5, { photo: [894, 1034], map: [.7168, -12.01, 263.56], c: [442.95, 312.66], w: 78.85, seg: [3.55, 7.9], tone: [.896, 29.4, .995, 2.7, 1.04, -8.8], grain: [3, 4.4, 4.7], ask: ['yes', 'yes'], reply: 'i know. write me, i’m waiting.' })}
+        <img src="${R0}assets/img/home/about.jpg" alt="${t('vittoria, hands together, a light between them')}" width="894" height="1034" loading="lazy">
+        ${talker('stop looking for a sign. you are ready to hire me.', 6.5, { photo: [894, 1034], map: [.7168, -12.01, 263.56], c: [442.95, 312.66], w: 78.85, seg: [3.55, 7.9], tone: [.896, 29.4, .995, 2.7, 1.04, -8.8], grain: [3, 4.4, 4.7], ask: ['yes', 'yes'], reply: 'i know. write me, i’m waiting.' }, R0)}
         ${light([47.5, 50.5, 22])}
       </figure>
     </div>
     <div class="about-text">
-      <h2 class="script reveal">about me</h2>
+      <h2 class="script reveal">${t('about me')}</h2>
       <div class="bio reveal" style="--d:1">
-        <p>vittoria scalmati is a furniture designer, editorial designer and artist, also working under the name microvitti. she is italian and lives and works in madrid. she studied fine arts and art history, then completed a master in furniture design at the politecnico di milano and worked in the studio of francesco faccin.</p>
-        <p>her work starts from the experience of being, or feeling, defenseless: the fear of not knowing how to protect herself and the fear of pain. it draws on memories, dreams, foggy things that happened and things that haven’t happened yet. her memory has always been unreliable and her mind is often clouded, so when she feels she is floating too much she holds on to what is concrete. she looks for materials that conduct temperature well, rough materials, anything that stimulates touch and keeps her feet on the ground.</p>
-        <p>what she looks for in everything she makes is that you want to touch it and aren’t afraid it will break. sometimes they still break. she hopes that one day all her objects will be strong like that. the stronger an object looks, the more it tends to come from a fragile and painful memory, and she isn’t sure whether the strength protects that memory or only covers it.</p>
+        <p>${t(`vittoria scalmati is a furniture designer, editorial designer and artist, also working under the name microvitti. she is italian and lives and works in madrid. she studied fine arts and art history, then completed a master in furniture design at the politecnico di milano and worked in the studio of francesco faccin.`)}</p>
+        <p>${t(`her work starts from the experience of being, or feeling, defenseless: the fear of not knowing how to protect herself and the fear of pain. it draws on memories, dreams, foggy things that happened and things that haven’t happened yet. her memory has always been unreliable and her mind is often clouded, so when she feels she is floating too much she holds on to what is concrete. she looks for materials that conduct temperature well, rough materials, anything that stimulates touch and keeps her feet on the ground.`)}</p>
+        <p>${t(`what she looks for in everything she makes is that you want to touch it and aren’t afraid it will break. sometimes they still break. she hopes that one day all her objects will be strong like that. the stronger an object looks, the more it tends to come from a fragile and painful memory, and she isn’t sure whether the strength protects that memory or only covers it.`)}</p>
       </div>
       <div class="facts reveal" style="--d:2">
         <div>
-          <h3>practice</h3>
-          <p>sculptural furniture<br>editorial design — three books<br>drawing &amp; painting<br>photography<br>3d sculpture</p>
+          <h3>${t('practice')}</h3>
+          <p>${['sculptural furniture', 'editorial design — three books', 'drawing &amp; painting', 'photography', '3d sculpture'].map(t).join('<br>')}</p>
         </div>
         <div>
-          <h3>education</h3>
-          <p>master in furniture design | poli.design | milan | 2024–2025<br>fine arts degree | fine arts academy | urbino | 2019–2023</p>
-          <h3>micromina blog</h3>
-          <p>editor</p>
+          <h3>${t('education')}</h3>
+          <p>${t('master in furniture design | poli.design | milan | 2023–2024')}<br>${t('fine arts degree | fine arts academy | urbino | 2019–2022')}</p>
+          <h3>microblogging</h3>
+          <p>${t('editor')}</p>
         </div>
       </div>
     </div>
   </section>
 
   <section class="contact" id="contact">
-    <p class="script reveal"><a href="micromina/index.html">micromina blog</a></p>
+    <p class="script reveal"><a href="${R0}micromina/index.html">microblogging</a></p>
     <div class="contact-lines reveal" style="--d:1">
       <p>vittoria scalmati</p>
       <p><a href="mailto:vittoria.scalmati@gmail.com">vittoria.scalmati@gmail.com</a></p>
-      <p>based in madrid</p>
+      <p><a href="https://www.instagram.com/microvitti/" target="_blank" rel="noopener">@microvitti</a></p>
+      <p>${t('based in madrid')}</p>
     </div>
-    <p class="thanks reveal" style="--d:2">see you soon! good bye</p>
+    <p class="thanks reveal" style="--d:2">${t('see you soon! good bye')}</p>
   </section>
 </main>
-${oracle("even if you proceed slowly keep walking, if you do, you'll reach your dreams.")}`,
+${oracle(t("even if you proceed slowly keep walking, if you do, you'll reach your dreams."), R0)}`,
 }));
 
 // ── una página por proyecto ──
@@ -299,25 +372,25 @@ ${oracle("even if you proceed slowly keep walking, if you do, you'll reach your 
 // el libro abierto que se hojea (assets/portfolio-ui.js): cada mitad enseña media doble página.
 // bookStyle 'hard' es la tapa dura gris que asoma por detrás, con el papel gris claro (coat hanger book)
 const bookFig = p => {
-  const at = p.bookAt || 1, [w, h] = p.bookSize || [1600, 1083], first = `../assets/img/${p.slug}/book/${String(at).padStart(2, '0')}.jpg?v=${VER}`;
-  return `<figure class="book${p.bookStyle ? ` book-${p.bookStyle}` : ''} reveal" style="--d:2;--ratio:${w} / ${h}" data-n="${p.book}" data-at="${at}" data-src="../assets/img/${p.slug}/book/" data-v="${VER}" aria-label="${attr(p.title)}, page by page">
+  const at = p.bookAt || 1, [w, h] = p.bookSize || [1600, 1083], first = `${R1}assets/img/${p.slug}/book/${String(at).padStart(2, '0')}.jpg?v=${VER}`;
+  return `<figure class="book${p.bookStyle ? ` book-${p.bookStyle}` : ''} reveal" style="--d:2;--ratio:${w} / ${h}" data-n="${p.book}" data-at="${at}" data-src="${R1}assets/img/${p.slug}/book/" data-v="${VER}" aria-label="${attr(t(p.title))}, ${t('page by page')}">
     <div class="book-stage">
       <div class="book-cover"></div>
       <div class="book-half book-l"><img src="${first}" alt="" width="${w}" height="${h}" draggable="false"></div>
       <div class="book-half book-r"><img src="${first}" alt="" width="${w}" height="${h}" draggable="false"></div>
       <div class="book-cast book-cast-l"></div><div class="book-cast book-cast-r"></div>
     </div>
-    <figcaption class="book-nav"><button class="book-prev" type="button" aria-label="previous page"${at === 1 ? ' disabled' : ''}>←</button><span class="book-count">${at} / ${p.book}</span><button class="book-next" type="button" aria-label="next page">→</button></figcaption>
+    <figcaption class="book-nav"><button class="book-prev" type="button" aria-label="${t('previous page')}"${at === 1 ? ' disabled' : ''}>←</button><span class="book-count">${at} / ${p.book}</span><button class="book-next" type="button" aria-label="${t('next page')}">→</button></figcaption>
   </figure>`;
 };
 READING.forEach((p, k) => {
   const next = READING[(k + 1) % READING.length];
   // una foto con ext 'mp4' es un vídeo: se mueve solo, en bucle y sin sonido, como una foto viva
   const fig = (n, [w, h, ext], extra = '') => ext === 'mp4'
-    ? `<figure${extra}><video src="${pimg('../', p.slug, n, ext)}" width="${w}" height="${h}" autoplay muted loop playsinline preload="metadata" aria-label="${attr(p.title)}, video ${n}"></video></figure>`
-    : `<figure${extra}><img src="${pimg('../', p.slug, n, ext || p.ext)}" alt="${attr(p.title)}, image ${n}" width="${w}" height="${h}" loading="lazy"></figure>`;
-  const pairRow = (ns, cap) => `<div class="g-group reveal"><div class="g-pair">${ns.map(n => fig(n, p.imgs[n - 1], ` style="flex:${(p.imgs[n - 1][0] / p.imgs[n - 1][1]).toFixed(3)}"`)).join('')}</div>${cap ? `<p class="g-cap">${cap}</p>` : ''}</div>`;
-  const oneRow = (n, cap) => { const s = p.imgs[n - 1]; return `<div class="g-group g-single g-${s[0] > s[1] * 1.15 ? 'wide' : 'tall'} reveal">${fig(n, s)}${cap ? `<p class="g-cap">${cap}</p>` : ''}</div>` };
+    ? `<figure${extra}><video src="${pimg(R1, p.slug, n, ext)}" width="${w}" height="${h}" autoplay muted loop playsinline preload="metadata" aria-label="${attr(t(p.title))}, video ${n}"></video></figure>`
+    : `<figure${extra}><img src="${pimg(R1, p.slug, n, ext || p.ext)}" alt="${attr(t(p.title))}, ${t('image')} ${n}" width="${w}" height="${h}" loading="lazy"></figure>`;
+  const pairRow = (ns, cap) => `<div class="g-group reveal"><div class="g-pair">${ns.map(n => fig(n, p.imgs[n - 1], ` style="flex:${(p.imgs[n - 1][0] / p.imgs[n - 1][1]).toFixed(3)}"`)).join('')}</div>${cap ? `<p class="g-cap">${t(cap)}</p>` : ''}</div>`;
+  const oneRow = (n, cap) => { const s = p.imgs[n - 1]; return `<div class="g-group g-single g-${s[0] > s[1] * 1.15 ? 'wide' : 'tall'} reveal">${fig(n, s)}${cap ? `<p class="g-cap">${t(cap)}</p>` : ''}</div>` };
   const first = p.hero ? 1 : 2; // con hero aparte (la silla girando), la galería empieza por la foto 1
   const rest = p.imgs.slice(first - 1).map((size, i) => [i + first, size]);
   const rows = [];
@@ -332,34 +405,36 @@ READING.forEach((p, k) => {
       i += 1;
     }
   }
-  const meta = [p.title, p.kind || p.type, p.year, p.material, p.dims, p.credit || 'personal project'].filter(Boolean).join(' | ');
-  const [hsrc, hw, hh] = p.hero ? [`../assets/img/${p.slug}/${p.hero[0]}?v=${VER}`, p.hero[1], p.hero[2]] : [pimg('../', p.slug, 1), ...p.imgs[0]];
+  const meta = [t(p.title), t(p.kind || p.type), p.year, t(p.material), p.dims, t(p.credit || 'personal project')].filter(Boolean).join(' | ');
+  const [hsrc, hw, hh] = p.hero ? [`${R1}assets/img/${p.slug}/${p.hero[0]}?v=${VER}`, p.hero[1], p.hero[2]] : [pimg(R1, p.slug, 1), ...p.imgs[0]];
   // el texto del proyecto; con textBelow va al final, después de todas las fotos
   const ptext = `<section class="p-text">
-    ${p.lede ? `<h2 class="reveal">${p.lede}</h2>` : ''}
-    ${p.text.map(t => `<p class="reveal">${t}</p>`).join('\n    ')}
-    ${p.translation ? `<p class="p-translation reveal">${p.translation}</p>` : ''}
+    ${p.lede ? `<h2 class="reveal">${t(p.lede)}</h2>` : ''}
+    ${p.text.map(x => `<p class="reveal">${t(x)}</p>`).join('\n    ')}
+    ${p.translation ? `<p class="p-translation reveal">${t(p.translation)}</p>` : ''}
     <p class="p-meta reveal">${meta}</p>
   </section>`;
-  write(ROOT + `/site/${p.slug}/index.html`, folioDoc({
+  write(out(`${p.slug}/index.html`), folioDoc({
     pre: '../',
-    title: `${p.title} · vittoria scalmati`,
-    desc: `${p.title} — ${p.kind || p.type} — ${p.year}. vittoria scalmati portfolio.`,
+    R: R1,
+    path: `${p.slug}/index.html`,
+    title: `${t(p.title)} · vittoria scalmati`,
+    desc: `${t(p.title)} — ${t(p.kind || p.type)} — ${p.year}. ${t('vittoria scalmati portfolio.')}`,
     cls: 'project',
     body: `<main>
   <section class="p-head">
-    <h1 class="p-title${p.title.length > 16 ? ' p-title-long' : ''} script reveal">${p.title}</h1>
-    ${p.type && !(p.book && !p.bookBelow) ? `<p class="p-type reveal" style="--d:2">${p.type}</p>` : ''}
+    <h1 class="p-title${t(p.title).length > 16 ? ' p-title-long' : ''} script reveal">${t(p.title)}</h1>
+    ${p.type && t(p.type) !== t(p.title) && !(p.book && !p.bookBelow) ? `<p class="p-type reveal" style="--d:2">${t(p.type)}</p>` : ''}
   </section>
-  ${p.book && !p.bookBelow ? bookFig(p) : `<figure class="p-hero${p.hero ? ' p-hero-cut' : ''} reveal" style="--d:2">${/\.mp4$/.test(p.hero?.[0] || '') ? `<video src="${hsrc}"${p.hero[3] ? ` poster="../assets/img/${p.slug}/${p.hero[3]}?v=${VER}"` : ''} width="${hw}" height="${hh}" autoplay muted loop playsinline preload="auto" aria-label="${attr(p.title)}"></video>` : `<img src="${hsrc}" alt="${attr(p.title)}" width="${hw}" height="${hh}">`}</figure>`}
+  ${p.book && !p.bookBelow ? bookFig(p) : `<figure class="p-hero${p.hero ? ' p-hero-cut' : ''} reveal" style="--d:2">${/\.mp4$/.test(p.hero?.[0] || '') ? `<video src="${hsrc}"${p.hero[3] ? ` poster="${R1}assets/img/${p.slug}/${p.hero[3]}?v=${VER}"` : ''} width="${hw}" height="${hh}" autoplay muted loop playsinline preload="auto" aria-label="${attr(t(p.title))}"></video>` : `<img src="${hsrc}" alt="${attr(t(p.title))}" width="${hw}" height="${hh}">`}</figure>`}
   ${p.textBelow ? '' : ptext}
   ${p.book ? (p.bookBelow ? `<section class="p-book">${bookFig(p)}</section>` : '') : `<section class="p-gallery">
     ${rows.join('\n    ')}
   </section>`}
   ${p.textBelow ? ptext : ''}
-  <a class="p-next" href="../${next.slug}/index.html"${next.cutout === false ? '' : ` data-img="${pcut('../', next.slug)}"`}>
-    <span>next</span>
-    <strong class="script">${next.title}</strong>
+  <a class="p-next" href="../${next.slug}/index.html"${next.cutout === false ? '' : ` data-img="${pcut(R1, next.slug)}"`}>
+    <span>${t('next')}</span>
+    <strong class="script">${t(next.title)}</strong>
   </a>
   <footer class="p-foot"><a href="../index.html#index">← portfolio</a><span>micromina — vittoria scalmati</span></footer>
 </main>`,
@@ -390,24 +465,26 @@ const CURIOS = [
 ];
 const IMG_W = 2000, IMG_H = 1116;
 const pct = (v, total) => `${(v / total * 100).toFixed(2)}%`;
-const curio = ([sound, name, line, x0, y0, x1, y1, m = {}]) => `<button class="curio" type="button" style="left:${pct(x0, IMG_W)};top:${pct(y0, IMG_H)};width:${pct(x1 - x0, IMG_W)};height:${pct(y1 - y0, IMG_H)}" data-name="${attr(name)}" data-sound="${sound}" data-line="${attr(line)}"${m.close ? ` data-close="../assets/img/process/${m.close}?v=${VER}"` : ''}${m.closeLine ? ` data-close-line="${attr(m.closeLine)}"` : ''}${m.ask ? ` data-ask="${attr(m.ask)}" data-go="${m.go}"` : ''}${m.link ? ` data-link="${attr(m.link)}" data-link-label="${attr(m.linkLabel)}"` : ''} aria-label="${attr(name)}"></button>`;
-write(ROOT + '/site/creative-process/index.html', folioDoc({
+const curio = ([sound, name, line, x0, y0, x1, y1, m = {}]) => (name = t(name), `<button class="curio" type="button" style="left:${pct(x0, IMG_W)};top:${pct(y0, IMG_H)};width:${pct(x1 - x0, IMG_W)};height:${pct(y1 - y0, IMG_H)}" data-name="${attr(name)}" data-sound="${sound}" data-line="${attr(t(line))}"${m.close ? ` data-close="${R1}assets/img/process/${m.close}?v=${VER}"` : ''}${m.closeLine ? ` data-close-line="${attr(t(m.closeLine))}"` : ''}${m.ask ? ` data-ask="${attr(t(m.ask))}" data-go="${m.go}"` : ''}${m.link ? ` data-link="${attr(m.link)}" data-link-label="${attr(t(m.linkLabel))}"` : ''} aria-label="${attr(name)}"></button>`);
+write(out('creative-process/index.html'), folioDoc({
   pre: '../',
-  title: 'creative process · vittoria scalmati',
-  desc: 'my cabinet of curiosities: every object stands for something closely tied to me.',
+  R: R1,
+  path: 'creative-process/index.html',
+  title: `${t('creative process')} · vittoria scalmati`,
+  desc: t('my cabinet of curiosities: every object stands for something closely tied to me.'),
   cls: 'process',
-  body: `<main class="cabinet" data-welcome="${attr('welcome to my cabinet of curiosities. every object on this shelf stands for something closely tied to me. look around, and pick one up.')}" data-idle="${attr('look around. pick something up.')}">
-  <h1 class="visually-hidden">creative process</h1>
-  <p class="items">items <span class="items-n">0</span>/${CURIOS.length}</p>
+  body: `<main class="cabinet" data-welcome="${attr(t('welcome to my cabinet of curiosities. every object on this shelf stands for something closely tied to me. look around, and pick one up.'))}" data-idle="${attr(t('look around. pick something up.'))}">
+  <h1 class="visually-hidden">${t('creative process')}</h1>
+  <p class="items">${t('items')} <span class="items-n">0</span>/${CURIOS.length}</p>
   <div class="stage">
-    <img class="cab-photo" src="../assets/img/process/cabinet.jpg?v=${VER}" alt="a small dark wooden shelf on a wall with things from my life: an amber candelabra, a black frame with a photo of my two cats, a cher album, sage burning in a bowl, crystal, a tin box and a laptop" width="${IMG_W}" height="${IMG_H}">
-    <img class="cab-bloom" src="../assets/img/process/cabinet.jpg?v=${VER}" alt="" aria-hidden="true">
-    <img class="mac-screen" src="../assets/img/process/mac-screen.jpg?v=${VER}" alt="" aria-hidden="true" style="left:${pct(1054, IMG_W)};top:${pct(676, IMG_H)};width:${pct(263, IMG_W)};height:${pct(188, IMG_H)}">
+    <img class="cab-photo" src="${R1}assets/img/process/cabinet.jpg?v=${VER}" alt="${t('a small dark wooden shelf on a wall with things from my life: an amber candelabra, a black frame with a photo of my two cats, a cher album, sage burning in a bowl, crystal, a tin box and a laptop')}" width="${IMG_W}" height="${IMG_H}">
+    <img class="cab-bloom" src="${R1}assets/img/process/cabinet.jpg?v=${VER}" alt="" aria-hidden="true">
+    <img class="mac-screen" src="${R1}assets/img/process/mac-screen.jpg?v=${VER}" alt="" aria-hidden="true" style="left:${pct(1054, IMG_W)};top:${pct(676, IMG_H)};width:${pct(263, IMG_W)};height:${pct(188, IMG_H)}">
     <canvas class="smoke" width="400" height="336" data-from="0.515,0.952" style="left:${pct(905, IMG_W)};top:${pct(352, IMG_H)};width:${pct(200, IMG_W)}" aria-hidden="true"></canvas>
     <div class="lamp" aria-hidden="true"></div>
     ${CURIOS.map(curio).join('\n    ')}
     <div class="closeup" hidden><img alt=""></div>
-    <div class="game-box" role="dialog" aria-label="creative process" aria-live="polite">
+    <div class="game-box" role="dialog" aria-label="${t('creative process')}" aria-live="polite">
       <p class="game-text"></p>
       <p class="game-choices"></p>
     </div>
@@ -423,20 +500,22 @@ write(ROOT + '/site/creative-process/index.html', folioDoc({
 // sin cabeza (tarot-reader-body.webp). tarot-reader.webp es la foto entera con el primer fotograma de la cabeza: es lo
 // que se ve mientras carga, y lo que se queda sin webcodecs o webgl
 const dust = Array.from({ length: 26 }, (_, i) => `<i style="--x:${(8 + (i * 37) % 84).toFixed(1)}%;--s:${(2 + (i * 7) % 4)}px;--t:${(9 + (i * 5) % 9)}s;--d:-${((i * 1.7) % 12).toFixed(1)}s"></i>`).join('');
-write(ROOT + '/site/tarot-reader/index.html', folioDoc({
+write(out('tarot-reader/index.html'), folioDoc({
   pre: '../',
-  title: 'tarot reader · vittoria scalmati',
-  desc: 'sit at her table: she shuffles, deals three cards and reads them for you.',
+  R: R1,
+  path: 'tarot-reader/index.html',
+  title: `${t('tarot reader')} · vittoria scalmati`,
+  desc: t('sit at her table: she shuffles, deals three cards and reads them for you.'),
   cls: 'tarot-page',
   body: `<main class="tarot-room">
-  <h1 class="visually-hidden">tarot reader</h1>
+  <h1 class="visually-hidden">${t('tarot reader')}</h1>
   <div class="tr-light" aria-hidden="true"><i class="tr-rays"></i><i class="tr-halo"></i><span class="tr-dust">${dust}</span></div>
-  <div class="tr-reader"><img src="../assets/img/games/tarot-reader.webp?v=${VER}" alt="the tarot reader: a young woman with her hair pinned up, in a leopard dress, holding tarot cards" width="712" height="860" data-video="../assets/video/tarot-reader.bin?v=${VER}" data-body="../assets/img/games/tarot-reader-body.webp?v=${VER}"></div>
+  <div class="tr-reader"><img src="${R1}assets/img/games/tarot-reader.webp?v=${VER}" alt="${t('the tarot reader: a young woman with her hair pinned up, in a leopard dress, holding tarot cards')}" width="712" height="860" data-video="${R1}assets/video/tarot-reader.bin?v=${VER}" data-body="${R1}assets/img/games/tarot-reader-body.webp?v=${VER}"></div>
   <div class="tr-table" aria-hidden="true"></div>
   <div class="tr-spread">
-    ${['the past', 'right now', 'what is coming'].map(pos => `<figure class="tcard" aria-label="${pos}"><div class="tcard-in"><div class="tcard-back" aria-hidden="true"></div><div class="tcard-face"></div></div></figure>`).join('\n    ')}
+    ${['the past', 'right now', 'what is coming'].map(pos => `<figure class="tcard" aria-label="${t(pos)}"><div class="tcard-in"><div class="tcard-back" aria-hidden="true"></div><div class="tcard-face"></div></div></figure>`).join('\n    ')}
   </div>
-  <div class="tr-box" role="dialog" aria-label="tarot reader" aria-live="polite">
+  <div class="tr-box" role="dialog" aria-label="${t('tarot reader')}" aria-live="polite">
     <p class="tr-text"></p>
     <p class="tr-choices"></p>
   </div>
@@ -448,8 +527,8 @@ write(ROOT + '/site/tarot-reader/index.html', folioDoc({
 // pet my cats: mis gatos, juanki y marcelo, duermen; si los acaricias te dicen una frase (las frases, en minigames.js, aún por decidir)
 // juanki es el blanco y atigrado, marcelo el atigrado
 // marcelo es el modelo 3d (assets/img/games/marcelo.glb, sacado del obj de meshy y aligerado): está despierto, con la pata arriba, quieto y mirando de frente
-// [nombre, pelo, sombra, modelo 3d, desde dónde se mira, si duerme]. juanki también es 3d (juanki.glb): duerme hecho una barra de pan
-const CATS = [['juanki', '#e9dccb', '#cdbba5', 'juanki.glb', '-50deg 72deg 78%', true], ['marcelo', '#9c948c', '#7d756e', 'marcelo.glb', '-8deg 80deg 72%', false]];
+// [nombre, pelo, sombra, modelo 3d, desde dónde se mira, si duerme, adónde mira la cámara (marcelo, más arriba y un poco más lejos, para que su sombra no se corte en el borde)]. juanki también es 3d (juanki.glb): duerme hecho una barra de pan
+const CATS = [['juanki', '#e9dccb', '#cdbba5', 'juanki.glb', '-50deg 72deg 78%', true], ['marcelo', '#9c948c', '#7d756e', 'marcelo.glb', '-8deg 80deg 80%', false, '0m -0.14m 0m']];
 // un gato dormido, enroscado: cuerpo, cabeza apoyada, orejas, cola alrededor
 const sleepingCat = ([name, fur, shade]) => `<svg class="cat-svg" viewBox="0 0 220 140" aria-hidden="true">
         <ellipse cx="112" cy="128" rx="92" ry="9" fill="#000" opacity=".07"/>
@@ -463,49 +542,93 @@ const sleepingCat = ([name, fur, shade]) => `<svg class="cat-svg" viewBox="0 0 2
           <path d="M68 84 l 3 3 l 3 -3 z" fill="#c98a92"/>
         </g>
       </svg>`;
-write(ROOT + '/site/mini-games/index.html', folioDoc({
+write(out('mini-games/index.html'), folioDoc({
   pre: '../',
-  title: 'mini games · vittoria scalmati',
-  desc: 'two small games: a tarot reader and my cats to pet.',
+  R: R1,
+  path: 'mini-games/index.html',
+  title: `${t('mini games')} · vittoria scalmati`,
+  desc: t('two small games: a tarot reader and my cats to pet.'),
   cls: 'games',
   body: `<main>
   <section class="p-head">
-    <h1 class="p-title script reveal">mini games</h1>
-    <nav class="games-menu reveal" style="--d:1" aria-label="games">
-      <a href="#tarot">: tarot reader</a>
-      <a href="#cats">: pet my cats</a>
+    ${flick(t('mini games'), ' mm-flick-long')}
+    <nav class="games-menu reveal" style="--d:1" aria-label="${t('games')}">
+      <a href="#tarot">: ${t('tarot reader')}</a>
+      <a href="#cats">: ${t('pet my cats')}</a>
     </nav>
   </section>
 
-  <section class="game" id="tarot" aria-label="tarot reader">
-    <h2 class="game-title script reveal">tarot reader</h2>
+  <section class="game" id="tarot" aria-label="${t('tarot reader')}">
+    <h2 class="game-title script reveal">${t('tarot reader')}</h2>
     <a class="game-panel tarot-door reveal" href="../tarot-reader/index.html">
-      <span class="door-light" aria-hidden="true"><img src="../assets/img/games/tarot-reader.webp?v=${VER}" alt="" width="712" height="860" loading="lazy"></span>
+      <span class="door-light" aria-hidden="true"><img src="${R1}assets/img/games/tarot-reader.webp?v=${VER}" alt="" width="712" height="860" loading="lazy"></span>
       <span class="door-words">
-        <span class="game-line">she's waiting for you at her table. three cards, one question, zero shame.</span>
-        <span class="game-btn">&gt; sit down</span>
+        <span class="game-line">${t("she's waiting for you at her table. three cards, one question, zero shame.")}</span>
+        <span class="game-btn">&gt; ${t('sit down')}</span>
       </span>
     </a>
   </section>
 
-  <section class="game" id="cats" aria-label="pet my cats">
-    <h2 class="game-title script reveal">pet my cats</h2>
+  <section class="game" id="cats" aria-label="${t('pet my cats')}">
+    <h2 class="game-title script reveal">${t('pet my cats')}</h2>
     <div class="game-panel cats reveal">
       <div class="cat-row">
-        ${CATS.map(c => `<div class="cat" role="button" tabindex="0" aria-label="pet ${c[0]}">
-      ${c[3] ? `<model-viewer class="cat-3d" src="../assets/img/games/${c[3]}?v=${VER}" alt="" aria-hidden="true" camera-orbit="${c[4]}" interaction-prompt="none" disable-zoom disable-pan disable-tap shadow-intensity=".5" exposure="1.05" loading="eager"></model-viewer>` : sleepingCat(c)}${!c[3] || c[5] ? `
+        ${CATS.map(c => `<div class="cat" role="button" tabindex="0" aria-label="${t('pet')} ${c[0]}">
+      ${c[3] ? `<model-viewer class="cat-3d" src="${R1}assets/img/games/${c[3]}?v=${VER}" alt="" aria-hidden="true" camera-orbit="${c[4]}"${c[6] ? ` camera-target="${c[6]}"` : ''} interaction-prompt="none" disable-zoom disable-pan disable-tap shadow-intensity=".5" exposure="1.05" loading="eager"></model-viewer>` : sleepingCat(c)}${!c[3] || c[5] ? `
       <span class="cat-zzz" aria-hidden="true">z z z</span>` : ''}
       <span class="cat-says" aria-live="polite"></span>
       <span class="cat-name">${c[0]}</span>
     </div>`).join('\n        ')}
       </div>
-      <p class="game-line">pet them long enough and they might give you a great piece of advice.</p>
+      <p class="game-line">${t('pet them long enough and they might give you a great piece of advice.')}</p>
     </div>
   </section>
   <footer class="p-foot"><a href="../index.html#index">← portfolio</a><span>micromina — vittoria scalmati</span></footer>
 </main>`,
 }));
 
+
+// ── el cv ──
+const cv = CV[L];
+const cvRow = ([years, place, where, what, note]) => `<div class="cv-row reveal">
+        <p class="cv-years">${years}</p>
+        <div>
+          <h3>${place} <span>${where}</span></h3>
+          ${what ? `<p>${what}</p>` : ''}${note ? `<ul class="cv-note">${note.map(n => `<li>${n}</li>`).join('')}</ul>` : ''}
+        </div>
+      </div>`;
+const cvList = (label, list, sep = ' · ') => list ? `<section class="cv-sec reveal">
+      <h2>${label}</h2>
+      <p>${list.join(sep)}</p>
+    </section>` : '';
+write(out('cv/index.html'), folioDoc({
+  pre: '../',
+  R: R1,
+  path: 'cv/index.html',
+  title: 'cv · vittoria scalmati',
+  desc: cv.desc,
+  cls: 'cv-page',
+  body: `<main>
+  <section class="cv">
+    ${flick('cv')}
+    <section class="cv-sec">
+      <h2 class="reveal">${cv.labels.study}</h2>
+      ${cv.study.map(cvRow).join('\n      ')}
+    </section>
+    ${cvList(cv.labels.skills, cv.skills)}
+    ${cvList(cv.labels.langs, cv.langs, '<br>')}
+    <section class="cv-sec reveal">
+      <h2>${cv.labels.mail}</h2>
+      <p><a href="mailto:vittoria.scalmati@gmail.com">vittoria.scalmati@gmail.com</a><br><a href="https://www.instagram.com/microvitti/" target="_blank" rel="noopener">@microvitti</a></p>
+    </section>
+  </section>
+  <footer class="p-foot"><a href="../index.html#index">← portfolio</a><span>micromina — vittoria scalmati</span></footer>
+</main>`,
+}));
+});
+
+// el blog solo existe en español, en micromina/: su menú y sus botones también, y desde él se vuelve a la versión española
+L = 'es';
 
 // ── micromina: el blog, dentro del portfolio ──
 // copiado de micromina.es antes de que desaparezca: los artículos (data/micromina/posts.json, exportados de la api de
@@ -552,17 +675,10 @@ const cleanPost = (html, pre) => html
   .replace(/<p[^>]*>\s*(<br>\s*)*<\/p>/g, '')
   .replace(/\n{2,}/g, '\n')
   .trim();
-// el «holi,» de la portada cambia de letra sin parar, como «microvitti» en las manos: las mismas ocho maneras
-// (cursiva fina, palo seco negro, pincel, bodoni estrecha, cursiva de píxeles, píxeles finos, mayúsculas de cartel y
-// redonda gorda), con letras de verdad. [familia, tamaño respecto al de la ballet]
-const HOLI_FORMS = [
-  ['Ballet', 1], ["'Archivo Black'", .75], ["'Kaushan Script'", 1.02], ["'Abril Fatface'", .85],
-  ["'FT88 School'", .5], ['VT323', .88], ['Limelight', .71], ["'Bagel Fat One'", .92],
-];
-const blogFoot = pre => `<footer class="p-foot"><a href="${pre}index.html#index">← portfolio</a><span>micromina — vittoria scalmati</span></footer>`;
+const blogFoot = pre => `<footer class="p-foot"><a href="${pre}es/index.html#index">← portfolio</a><span>micromina — vittoria scalmati</span></footer>`;
 const blogPage = (path, { title, desc, body }) => {
   const pre = '../'.repeat(path.split('/').length - 1);
-  write(ROOT + '/site/' + path, folioDoc({ pre, title, desc, cls: 'blog', body: body(pre) }));
+  write(ROOT + '/site/' + path, folioDoc({ pre: pre + 'es/', R: pre, title, desc, cls: 'blog', body: body(pre) }));
 };
 // portada: el saludo, la bio y el archivo
 blogPage('micromina/index.html', {
@@ -570,7 +686,7 @@ blogPage('micromina/index.html', {
   desc: 'micromina, la colección digital de vittoria: moda fabulosa, diseño mágico, objetos desaburridos, cultura visual y estrambolerías varias.',
   body: pre => `<main>
   <section class="mm-home">
-    <h1 class="mm-flick reveal" aria-label="holi,">${HOLI_FORMS.map(([f, k], i) => `<span class="nf${i ? '' : ' on'}" style="font-family:${f};font-size:${k}em" aria-hidden="true">holi,</span>`).join('')}</h1>
+    ${flick('holi,')}
     <p class="mm-lead reveal" style="--d:1">esta es mi colección digital</p>
     <p class="mm-yo reveal" style="--d:2">y <a href="${pre}micromina/yo/index.html">yo?</a></p>
     <a class="mm-button reveal" style="--d:3" href="${pre}micromina/archivo/index.html">archivo de articulos</a>
@@ -625,16 +741,15 @@ blogPage('micromina/yo/index.html', {
   desc: 'quién guarda todo esto.',
   body: pre => `<main>
   <section class="mm-wrap mm-bio">
-    <h1 class="p-title script reveal">yo?</h1>
+    ${flick('yo?')}
     <p class="mm-holi reveal" style="--d:1">holi</p>
     <div class="bio reveal" style="--d:2">
       <p>soy una chica curiosa, que se aburre facilísimo, un poco triste a veces también, y me muero por saber un poco de todo, literalmente todo lo que existe en el mundo, y esto me da una ansiedad tremenda porque sé que nunca voy a poder descubrirlo entero, es imposible, y esa idea me supera, me aplasta si lo pienso demasiado, pero tampoco pasa nada, porque en realidad no todo me llama la atención, hay muchísimas cosas que me dan absolutamente igual, pero las que sí me gustan son un montón, y como es imposible acordarme de todas sin guardarlas en algún sitio, decidí crear un archivo virtual, una colección digital de lo que me apasiona.</p>
       <p>y a veces me atormento pensando que tengo miedo de no dejar nada en este mundo, así que esto es mi regalo al planeta: una pequeña enciclopedia de cositas que me flipan. yo qué sé, dentro de un millón de años, cuando el mundo ya haya explotado por lo menos tres veces, alguien encontrará este ordenador pequeñito debajo de toneladas de escombros, y ojalá sea la nueva pompeya.</p>
-      <p>si me quieres escribir para colaborar, para organizar una entrevista, o porque piensas que tus proyectos podrían encajar con mis intereses, estoy súper abierta a conocerte: <a href="mailto:vittoria@micromina.es">vittoria@micromina.es</a></p>
     </div>
   </section>
   ${blogFoot(pre)}
 </main>`,
   });
 
-`ok: ${READING.length} proyectos`;
+`ok: ${READING.length} proyectos × ${LANGS.length} idiomas${missing.size ? `\nsin traducir (${missing.size}):\n` + [...missing].join('\n') : ''}`;

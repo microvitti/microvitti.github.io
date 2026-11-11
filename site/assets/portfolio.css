@@ -1,12 +1,12 @@
 /* micromina — portfolio de vittoria scalmati.
-   blanco y sin adornos, con la tipografía del pdf: ballet (títulos, en negro), bodoni (portada y about),
+   blanco y sin adornos, con la tipografía: pinyon script (títulos, en negro; la libre más parecida a las letras de rosemary's baby), bodoni (portada y about),
    palatino cursiva espaciada (índice) y source sans (textos de proyecto). */
 :root {
-  --plum: #5c1a3b; /* el color de los detalles: viola oscuro, borgoña (antes un rosa, #c47f96) */
+  --plum: #f251bc; /* el color de los detalles: el rosa de los títulos de crédito de rosemary's baby (antes un viola oscuro, #5c1a3b) */
   --ink: #1b1b1b;
   --grey: #8c8c8c;
   --soft: #bdbdbd;
-  --script: "Ballet", "Snell Roundhand", cursive;
+  --script: "Pinyon Script", "Snell Roundhand", cursive; /* las letras van unidas: sin tracking */
   --serif: "Bodoni Moda", "Bodoni 72", Didot, serif;
   --pal: "Palatino Linotype", Palatino, "Book Antiqua", "Bodoni Moda", serif;
   --sans: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
@@ -19,12 +19,17 @@ body { font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; over
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; height: auto; }
 figure { margin: 0; }
-.script { font-family: var(--script); font-weight: 400; letter-spacing: .17em; } /* tracking 170 */
+.script { font-family: var(--script); font-weight: 400; letter-spacing: 0; }
 
 /* ── barra ── */
 .bar { position: fixed; inset: 0 0 auto; z-index: 40; display: flex; justify-content: space-between; align-items: baseline; padding: 18px 4vw; background: rgba(255, 255, 255, .86); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .bar-name { font: italic 400 18px/1 var(--serif); }
 .bar-nav { display: flex; gap: 1.8rem; font-size: 13px; letter-spacing: .06em; }
+/* «en · es · it»: el idioma, a la derecha del menú; el de ahora en el borgoña */
+.bar-nav { margin-left: auto; }
+.bar-lang { display: flex; align-items: baseline; gap: .4rem; margin-left: 2.2rem; font-size: 12px; letter-spacing: .14em; color: var(--grey); }
+.bar-lang i { font-style: normal; color: var(--soft); }
+.bar-lang a[aria-current] { color: var(--plum); }
 .bar a { transition: color .3s; }
 .bar a:hover { color: var(--plum); }
 /* «mini games», lo último de cada página, abajo a la derecha (en su propia página no hace falta) */
@@ -49,12 +54,12 @@ figure { margin: 0; }
 .hands-name .nf { position: absolute; left: 50%; top: 50%; translate: -50% -50%; visibility: hidden; }
 .hands-name .nf.on { visibility: visible; }
 .hands-name img.nf { height: auto; }
-.hands-name .nf-script { translate: -49% -50%; font-size: clamp(3.4rem, 10.8vw, 9.9rem); font-size: 15.6cqw; /* tan ancha como en su captura: el 79 % de las manos */ line-height: 1; letter-spacing: .28em; padding-left: .28em; white-space: nowrap; }
+.hands-name .nf-script { translate: -49% -50%; font-size: clamp(1.9rem, 6vw, 5.6rem); font-size: 8.5cqw; /* tan ancha como en su captura: el 79 % de las manos */ line-height: 1; letter-spacing: .28em; padding-left: .28em; white-space: nowrap; }
 .hands-sub { margin: 3.2vh 0 0; text-align: center; font: italic 400 clamp(1.05rem, 1.7vw, 1.4rem)/1.5 var(--serif); letter-spacing: .14em; padding: 0 16px; }
 
 /* ── índice ── */
 .index { display: grid; grid-template-columns: max-content max-content minmax(220px, 1fr); gap: 12vh 6vw; padding: 16vh 6vw 12vh; align-items: start; }
-.idx-col h2 { margin: 0 0 2.2rem .4em; color: var(--ink); font-size: clamp(3rem, 5.4vw, 5.2rem); line-height: 1.2; }
+.idx-col h2 { margin: 0 0 2.2rem .4em; color: var(--ink); font-size: clamp(2.8rem, 4.8vw, 4.6rem); line-height: 1.2; }
 .idx-col ul { margin: 0; padding: 0; list-style: none; }
 .idx-col li { margin: 0 0 1.05rem; font: italic 400 14px/1.5 var(--pal); letter-spacing: .15em; white-space: nowrap; transition: opacity .4s var(--ease); }
 .idx-col i { font-style: normal; padding: 0 .3em; }
@@ -63,7 +68,7 @@ figure { margin: 0; }
 .index:has(a:hover) li { opacity: .3; }
 .index:has(a:hover) li:has(a:hover) { opacity: 1; }
 .idx-col li.soon { color: var(--soft); }
-.idx-col li.soon span::after { content: "soon"; margin-left: .8em; font: 400 11px/1 var(--sans); letter-spacing: .2em; color: var(--plum); opacity: 0; transition: opacity .4s; }
+.idx-col li.soon span::after { content: attr(data-soon); margin-left: .8em; font: 400 11px/1 var(--sans); letter-spacing: .2em; color: var(--plum); opacity: 0; transition: opacity .4s; }
 .idx-col li.soon:hover span::after { opacity: 1; }
 .idx-fig { position: relative; grid-column: 3; grid-row: 1 / 3; align-self: center; justify-self: center; width: min(100%, 25rem); }
 /* las chicas hablan al tocarlas: aparece lo que dicen y mueven la boca */
@@ -88,7 +93,7 @@ figure { margin: 0; }
 .about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 6vw; align-items: center; padding: 14vh 6vw; }
 .about-side { display: grid; gap: 3.2rem; }
 .about-fig { position: relative; }
-.about-text h2 { margin: 0 0 2.4rem; color: var(--ink); font-size: clamp(3.4rem, 6.5vw, 6.2rem); line-height: 1.2; letter-spacing: .17em; }
+.about-text h2 { margin: 0 0 2.4rem; color: var(--ink); font-size: clamp(3rem, 5.6vw, 5.4rem); line-height: 1.2; }
 .bio { max-width: 34rem; font: 400 17px/1.65 var(--serif); }
 .bio p { margin: 0 0 1em; }
 .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 3vw; margin-top: 3rem; font-size: 13px; line-height: 1.7; color: #444; }
@@ -97,7 +102,7 @@ figure { margin: 0; }
 
 /* ── contacto ── */
 .contact { min-height: 90svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10vh 6vw; }
-.contact > .script { margin: 0 0 2rem; color: var(--ink); font-size: clamp(4rem, 10vw, 9rem); line-height: 1.2; }
+.contact > .script { margin: 0 0 2rem; color: var(--ink); font-size: clamp(2.6rem, 8vw, 7.6rem); line-height: 1.2; }
 .contact > .script a { color: inherit; transition: opacity .4s; } /* lleva al blog */
 .contact > .script a:hover, .contact > .script a:focus-visible { opacity: .7; outline: none; }
 .contact-lines { font: italic 400 19px/2 var(--serif); }
@@ -117,9 +122,9 @@ figure { margin: 0; }
 .oracle.in .oracle-face { opacity: 1; transform: translate(-50%, -50%); }
 .oracle.gone .oracle-face { opacity: 0; transform: translate(-50%, -50%) translateX(80vw); transition-duration: 1.8s, 1.4s; }
 /* el aura borgoña respira detrás de ella */
-.oracle-face::before { content: ""; position: absolute; inset: -18% -34%; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(92, 26, 59, .55), rgba(92, 26, 59, .22) 55%, rgba(92, 26, 59, 0)); filter: blur(16px); animation: aura 3.2s ease-in-out infinite; }
+.oracle-face::before { content: ""; position: absolute; inset: -18% -34%; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(242, 81, 188, .55), rgba(242, 81, 188, .22) 55%, rgba(242, 81, 188, 0)); filter: blur(16px); animation: aura 3.2s ease-in-out infinite; }
 @keyframes aura { 50% { transform: scale(1.1); opacity: .7; } }
-.oracle-bob { position: relative; filter: drop-shadow(0 0 16px rgba(92, 26, 59, .45)); animation: bob 3.4s ease-in-out infinite; }
+.oracle-bob { position: relative; filter: drop-shadow(0 0 16px rgba(242, 81, 188, .45)); animation: bob 3.4s ease-in-out infinite; }
 @keyframes bob { 50% { transform: translateY(-12px) rotate(-1.5deg); } }
 .oracle-bob img { width: 100%; }
 /* la boca del vídeo encima de la de la foto (la máscara la pinta portfolio-ui.js) */
@@ -152,23 +157,24 @@ figure { margin: 0; }
 
 /* ── proyecto ── */
 .p-head { padding: 22vh 6vw 7vh; text-align: center; }
-.p-title { margin: .2em 0 0; color: var(--ink); font-size: clamp(4.5rem, 12vw, 11rem); line-height: 1.15; letter-spacing: .17em; padding-left: .17em; }
+.p-title { margin: .2em 0 0; color: var(--ink); font-size: clamp(3.4rem, 10vw, 9rem); line-height: 1.15; }
 /* los títulos largos (the hedgehog’s confession) bajan de tamaño para quedar en una sola línea */
-.p-title-long { font-size: clamp(2rem, 9vw, 8.4rem); letter-spacing: .17em; }
+.p-title-long { font-size: clamp(2.4rem, 5.4vw, 5.4rem); }
 
 /* ── micromina: el blog, con la ropa del portfolio ── */
 .mm-home { padding: 22vh 6vw 6vh; text-align: center; }
 /* «holi,» cambiando de letra: todas las formas, una encima de otra, y sólo una a la vista (como «microvitti») */
 @font-face { font-family: "FT88 School"; src: url("fonts/ft88-school.woff2") format("woff2"); font-display: swap; }
 .mm-flick { position: relative; height: clamp(6rem, 15vw, 13rem); margin: 0 0 3vh; font-size: clamp(4.5rem, 12vw, 11rem); font-weight: 400; line-height: 1; color: var(--ink); }
+.mm-flick-long { height: clamp(4rem, 9vw, 8rem); font-size: clamp(3rem, 8vw, 7.5rem); } /* una palabra larga: «mini games» */
 .mm-flick .nf { position: absolute; left: 50%; top: 50%; translate: -50% -50%; white-space: nowrap; visibility: hidden; }
 .mm-flick .nf.on { visibility: visible; }
-.mm-flick .nf:first-child { letter-spacing: .17em; padding-left: .17em; }
+.mm-flick .nf:first-child { font-weight: 400; }
 .mm-lead { margin: 0 0 1.2rem; font: 400 clamp(1.3rem, 2.2vw, 1.8rem)/1.3 var(--serif); }
 .mm-yo { margin: 0 0 2.6rem; font: italic 400 19px/1.4 var(--serif); }
 .mm-yo a, .mm-prose a, .mm-bio a, .mm-list a { color: var(--plum); text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: 1px; }
 .mm-button { display: inline-block; padding: 16px 34px; border-radius: 999px; background: var(--plum); color: #fff; font: 400 14px/1 var(--sans); letter-spacing: .2em; transition: background .3s; }
-.mm-button:hover, .mm-button:focus-visible { background: #3f1028; outline: none; }
+.mm-button:hover, .mm-button:focus-visible { background: #c9309a; outline: none; }
 .mm-logo { width: 110px; margin: 9vh auto 0; }
 .mm-wrap { max-width: 760px; margin: 0 auto; padding: 22vh 6vw 8vh; }
 .mm-wrap > .p-title { margin-bottom: 6vh; text-align: center; }
@@ -198,9 +204,26 @@ figure { margin: 0; }
 .mm-pager a:last-child { text-align: right; }
 .mm-pager a:hover, .mm-pager a:focus-visible { color: var(--plum); outline: none; }
 .mm-pager span { display: block; margin-bottom: .4rem; font: normal 400 11px/1 var(--sans); letter-spacing: .25em; color: var(--grey); }
-.mm-bio .mm-holi { margin: 0 0 4vh; font: 400 clamp(5rem, 18vw, 13rem)/1 var(--script); text-align: center; }
+.mm-bio .mm-holi { margin: 0 0 4vh; font: 400 clamp(5rem, 16vw, 11rem)/1 var(--script); text-align: center; }
 .mm-bio .bio { max-width: 38rem; margin: 0 auto; text-align: center; }
 .mm-bio .bio p { margin: 0 0 1.3em; }
+/* el cv: cada estudio con sus años a la izquierda, como una ficha */
+.cv { max-width: 760px; margin: 0 auto; padding: 22vh 6vw 8vh; }
+.cv-sec { margin-top: 4.5rem; }
+.cv-sec h2 { margin: 0 0 1.6rem; font: 500 12px/1 var(--sans); letter-spacing: .2em; color: var(--ink); }
+.cv-sec > p { margin: 0; font-size: 16px; line-height: 1.7; }
+.cv-sec a:hover { color: var(--plum); }
+.cv-row { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1.5rem; margin-bottom: 2.2rem; }
+.cv-row p { margin: 0; font-size: 16px; line-height: 1.6; }
+.cv-row .cv-years { font-size: 13px; line-height: 1.9; letter-spacing: .06em; color: var(--grey); }
+.cv-row h3 { margin: 0 0 .5rem; font: 400 40px/1.25 var(--script); }
+.cv-row h3 span { margin-left: .5em; font: 400 13px/1 var(--sans); letter-spacing: .06em; color: var(--grey); }
+.cv-row .cv-note { margin: .4rem 0 0; padding: 0; list-style: none; font-size: 16px; line-height: 1.6; color: #666; }
+.cv-note li::before { content: "✦"; margin-right: .55em; font-size: .75em; color: var(--plum); }
+@media (max-width: 600px) {
+  .cv { padding: 18vh 16px 6vh; }
+  .cv-row { grid-template-columns: 1fr; gap: .2rem; }
+}
 
 @media (min-width: 700px) { .p-title-long { white-space: nowrap; } }
 .p-type { margin: 1.4rem 0 0; font: 400 clamp(1rem, 1.7vw, 1.35rem)/1.4 var(--serif); letter-spacing: .2em; color: var(--ink); } /* el subtítulo: en negro y en minúscula */
@@ -279,8 +302,8 @@ figure { margin: 0; }
 .p-gallery img, .p-gallery video { display: block; width: 100%; height: auto; }
 .p-next { display: block; margin-top: 22vh; padding: 14vh 6vw; text-align: center; }
 .p-next span { display: block; font-size: 12px; letter-spacing: .3em; color: var(--grey); }
-.p-next strong { display: block; color: var(--ink); font-size: clamp(4rem, 10vw, 9rem); line-height: 1.3; letter-spacing: .17em; transition: letter-spacing .8s var(--ease); }
-.p-next:hover strong { letter-spacing: .27em; }
+.p-next strong { display: block; color: var(--ink); font-size: clamp(2.6rem, 7.6vw, 7rem); line-height: 1.3; transition: opacity .4s; }
+.p-next:hover strong { opacity: .7; }
 .p-foot { display: flex; justify-content: space-between; padding: 3vh 4vw 4vh; font-size: 12px; letter-spacing: .06em; color: var(--grey); }
 .p-foot a:hover { color: var(--plum); }
 
@@ -392,7 +415,7 @@ figure { margin: 0; }
 .games-menu { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem 2.2rem; margin-top: 2.2rem; font: 400 20px/1 var(--game); letter-spacing: .06em; }
 .games-menu a:hover { color: var(--plum); }
 .game { max-width: 980px; margin: 0 auto; padding: 10vh 6vw 0; scroll-margin-top: 60px; }
-.game-title { margin: 0 0 1.4rem .3em; font-size: clamp(2.6rem, 4.6vw, 4.4rem); line-height: 1.2; letter-spacing: .17em; color: var(--ink); } /* en la ballet del sitio, como los títulos del índice */
+.game-title { margin: 0 0 1.4rem .3em; font-size: clamp(2.8rem, 4.4vw, 4.2rem); line-height: 1.2; color: var(--ink); } /* en la letra de los títulos del índice */
 .game-panel { padding: 28px clamp(16px, 4vw, 40px) 24px; border: 1px solid var(--ink); background: #fff; }
 .game-line { min-height: 2.6em; margin: 1.4rem 0 0; font: 400 21px/1.25 var(--game); letter-spacing: .02em; }
 .game-actions { display: flex; flex-wrap: wrap; gap: 1.8rem; margin: .8rem 0 0; }
@@ -421,7 +444,7 @@ figure { margin: 0; }
 .cat:focus-visible { outline: 1px dashed var(--soft); outline-offset: 4px; }
 .cat-svg { display: block; width: 100%; height: auto; }
 .cat-3d { display: block; width: 100%; height: auto; aspect-ratio: 1 / .78; margin-top: -40px; background: none; --poster-color: transparent; pointer-events: none; } /* los gatos en 3d, quietos; el dedo y el ratón llegan al gato, no al visor */
-.cat-name { display: block; margin-top: 4px; text-align: center; font: 400 34px/1.2 var(--script); letter-spacing: .06em; color: var(--plum); } /* sus nombres, en la letra de los títulos */
+.cat-name { display: block; margin-top: 4px; text-align: center; font: 400 34px/1.2 "Ballet", "Snell Roundhand", cursive; letter-spacing: .06em; color: var(--plum); } /* sus nombres, en la letra de los títulos */
 .cat-body { transform-origin: 50% 100%; transform-box: fill-box; animation: breathe-cat 3.6s ease-in-out infinite; }
 @keyframes breathe-cat { 50% { transform: scaleY(1.05); } }
 .cat.purr .cat-svg, .cat.purr .cat-3d { animation: purr .09s linear 14; }
@@ -476,7 +499,8 @@ figure { margin: 0; }
   body { font-size: 16px; }
   /* en el móvil: el nombre arriba y el menú entero en una línea debajo */
   .bar { flex-wrap: wrap; row-gap: 8px; padding: 12px 16px 10px; }
-  .bar-nav { width: 100%; justify-content: space-between; gap: .6rem; font-size: 12px; letter-spacing: .02em; white-space: nowrap; }
+  .bar-nav { order: 2; width: 100%; margin-left: 0; justify-content: space-between; gap: .6rem; font-size: 12px; letter-spacing: .02em; white-space: nowrap; }
+  .bar-lang { margin-left: auto; font-size: 11px; } /* en el móvil, en la línea del nombre */
   .items { top: 84px; }
   /* también en el móvil las listas quedan al lado de la chica, que se queda quieta mientras bajas */
   .index { grid-template-columns: minmax(0, 1fr) 36%; padding: 10vh 16px; gap: 7vh 14px; }
