@@ -84,7 +84,7 @@ const PROJECTS = [
     ],
     cutout: false, // todavía no hay su foto recortada sin fondo (assets/img/<slug>/cutout.png): sin ella no hay foto al pasar el ratón
     imgs: [[2000, 1500], [1762, 2000], [2000, 1065], [1491, 2000], [2000, 1292]],
-    groups: [[2, 3], [4, 5]], // la primera, grande; luego dos parejas: un retrato y una ancha, juntos
+    groups: [[2, 3], [5, 4]], // la primera, grande; luego dos parejas: un retrato y una ancha, juntos (en la última, la ancha va antes)
   },
   {
     slug: '3d-sculpture', title: '3d sculpture', section: 'art', year: '2026', type: 'digital art',
