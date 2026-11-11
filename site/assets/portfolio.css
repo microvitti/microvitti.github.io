@@ -68,6 +68,9 @@ figure { margin: 0; }
 .index:has(a:hover) li { opacity: .3; }
 .index:has(a:hover) li:has(a:hover) { opacity: 1; }
 .idx-col li.soon { color: var(--soft); }
+/* una carpeta (photography): su nombre y, debajo y sangrados, los proyectos que contiene */
+.idx-col li.folder > ul { margin: .8rem 0 0 1.8em; }
+.idx-col li.folder > ul > li { margin-bottom: .55rem; }
 .idx-col li.soon span::after { content: attr(data-soon); margin-left: .8em; font: 400 11px/1 var(--sans); letter-spacing: .2em; color: var(--plum); opacity: 0; transition: opacity .4s; }
 .idx-col li.soon:hover span::after { opacity: 1; }
 .idx-fig { position: relative; grid-column: 3; grid-row: 1 / 3; align-self: center; justify-self: center; width: min(100%, 25rem); }

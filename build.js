@@ -77,7 +77,7 @@ const PROJECTS = [
   { slug: 'drawing-and-painting', title: 'drawing & painting', section: 'art', year: '2023-2025' },
   { slug: 'photography', title: 'photography', section: 'art', year: '2021-2026' },
   {
-    slug: 'ejercicio-de-direccion', title: 'ejercicio de dirección', section: 'art', kind: 'photography', year: '2026', type: 'photo series',
+    slug: 'ejercicio-de-direccion', title: 'ejercicio de dirección', section: 'art', parent: 'photography', kind: 'photography', year: '2026', type: 'photo series',
     text: [
       'an exercise in direction: i took care of every part of the image myself. styling, make-up, hair, set design and photography.',
       'model: lucía de la fuente arias.',
@@ -179,7 +179,7 @@ const talker = (words, head, { photo: [W, H], map: [s, ox, oy], c: [cx, cy], w, 
 const pimg = (pre, slug, i, ext = 'jpg') => `${pre}assets/img/${slug}/${i}.${ext}?v=${VER}`;
 // la foto que sigue al ratón: el proyecto recortado, sin fondo (assets/img/<slug>/cutout.png)
 const pcut = (pre, slug) => `${pre}assets/img/${slug}/cutout.png?v=${VER}`;
-const entryLine = p => `${t(p.title)} <i>|</i> ${p.kind ? t(p.kind) + ' <i>|</i> ' : ''}${p.year}`;
+const entryLine = (p, short) => `${t(p.title)} <i>|</i> ${p.kind && !short ? t(p.kind) + ' <i>|</i> ' : ''}${p.year}`; // short: sin el tipo, para lo que ya está dentro de su carpeta
 
 // pre lleva a la portada de su idioma, R a la raíz del sitio (donde están assets/ y el blog); path es esta página
 // dentro de su idioma, para que «en · es · it» lleve a la misma en el otro (sin path, como en el blog, no sale)
@@ -276,14 +276,18 @@ const R0 = L === 'en' ? '' : '../', R1 = '../' + R0;
 const out = path => ROOT + '/site/' + (L === 'en' ? '' : L + '/') + path;
 
 // ── home ──
+// una entrada con parent (p. ej. ejercicio de dirección, dentro de photography) no va suelta: se enseña dentro de su carpeta, sangrada
+const idxItem = p => p.imgs
+  ? `<li><a href="${p.slug}/index.html"${p.cutout === false ? '' : ` data-img="${pcut(R0, p.slug)}"`}>${entryLine(p, !!p.parent)}</a></li>`
+  : p.href
+    ? `<li><a href="${R0}${p.href}">${entryLine(p)}</a></li>`
+    : PROJECTS.some(c => c.parent === p.slug)
+      ? `<li class="folder"><span>${entryLine(p)}</span>\n          <ul>\n            ${PROJECTS.filter(c => c.parent === p.slug).map(idxItem).join('\n            ')}\n          </ul></li>`
+      : `<li class="soon"><span data-soon="${t('soon')}">${entryLine(p)}</span></li>`;
 const indexCol = (sec, d) => `<div class="idx-col idx-${sec} reveal" style="--d:${d}">
       <h2 class="script">${t(sec === 'furniture' ? 'sculptural furniture' : sec)}</h2>
       <ul>
-        ${PROJECTS.filter(p => p.section === sec).map(p => p.imgs
-          ? `<li><a href="${p.slug}/index.html"${p.cutout === false ? '' : ` data-img="${pcut(R0, p.slug)}"`}>${entryLine(p)}</a></li>`
-          : p.href
-            ? `<li><a href="${R0}${p.href}">${entryLine(p)}</a></li>`
-            : `<li class="soon"><span data-soon="${t('soon')}">${entryLine(p)}</span></li>`).join('\n        ')}
+        ${PROJECTS.filter(p => p.section === sec && !p.parent).map(idxItem).join('\n        ')}
       </ul>
     </div>`;
 
