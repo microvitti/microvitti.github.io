@@ -64,6 +64,16 @@ const PROJECTS = [
   { slug: 'drawing-and-painting', title: 'drawing & painting', section: 'art', year: '2023-2025' },
   { slug: 'photography', title: 'photography', section: 'art', year: '2021-2026' },
   {
+    slug: 'ejercicio-de-direccion', title: 'ejercicio de dirección', section: 'art', kind: 'photography', year: '2026', type: 'photo series',
+    text: [
+      'an exercise in direction: i took care of every part of the image myself. styling, make-up, hair, set design and photography.',
+      'model: lucía de la fuente arias.',
+    ],
+    cutout: false, // todavía no hay su foto recortada sin fondo (assets/img/<slug>/cutout.png): sin ella no hay foto al pasar el ratón
+    imgs: [[1246, 2000], [1500, 2000], [1319, 2000], [2000, 1782], [2000, 1937], [1762, 2000], [2000, 1500], [2000, 1320], [2000, 1235]],
+    groups: [[2, 3], [4], [5, 6], [7], [8, 9]], // dos retratos juntos, una sola, otra pareja, una ancha y dos paisajes juntos
+  },
+  {
     slug: '3d-sculpture', title: '3d sculpture', section: 'art', year: '2026', type: 'digital art',
     text: ['kittens that grew into each other. creatures that only exist on a screen, for now.'],
     imgs: [[956, 948], [1024, 1024], [1024, 1015]],
@@ -99,7 +109,7 @@ const PROJECTS = [
 ];
 const SHOWN = PROJECTS.filter(p => p.imgs);
 // orden de lectura para «next»: furniture → editorials → art, como en el índice
-const READING = ['morso', 'lazito', 'silla-mostruosa', 'budicca', 'thesis', 'coat-hanger-book', 'museo', 'generative-photography', '3d-sculpture'].map(s => SHOWN.find(p => p.slug === s));
+const READING = ['morso', 'lazito', 'silla-mostruosa', 'budicca', 'thesis', 'coat-hanger-book', 'museo', 'generative-photography', 'ejercicio-de-direccion', '3d-sculpture'].map(s => SHOWN.find(p => p.slug === s));
 
 // brillo que suena: [x, y, tamaño] en % de la imagen
 const light = ([x, y, s]) => `<button class="light" type="button" style="--x:${x}%;--y:${y}%;--s:${s}%" aria-label="make the light sing" aria-pressed="false"><span class="light-hint">touch the light</span></button>`;
@@ -200,7 +210,7 @@ const indexCol = (sec, d) => `<div class="idx-col idx-${sec} reveal" style="--d:
       <h2 class="script">${sec}</h2>
       <ul>
         ${PROJECTS.filter(p => p.section === sec).map(p => p.imgs
-          ? `<li><a href="${p.slug}/index.html" data-img="${pcut('', p.slug)}">${entryLine(p)}</a></li>`
+          ? `<li><a href="${p.slug}/index.html"${p.cutout === false ? '' : ` data-img="${pcut('', p.slug)}"`}>${entryLine(p)}</a></li>`
           : p.href
             ? `<li><a href="${p.href}">${entryLine(p)}</a></li>`
             : `<li class="soon"><span>${entryLine(p)}</span></li>`).join('\n        ')}
@@ -347,7 +357,7 @@ READING.forEach((p, k) => {
     ${rows.join('\n    ')}
   </section>`}
   ${p.textBelow ? ptext : ''}
-  <a class="p-next" href="../${next.slug}/index.html" data-img="${pcut('../', next.slug)}">
+  <a class="p-next" href="../${next.slug}/index.html"${next.cutout === false ? '' : ` data-img="${pcut('../', next.slug)}"`}>
     <span>next</span>
     <strong class="script">${next.title}</strong>
   </a>
