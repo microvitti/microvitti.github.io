@@ -83,8 +83,8 @@ const PROJECTS = [
       'model: lucía de la fuente arias.',
     ],
     cutout: false, // todavía no hay su foto recortada sin fondo (assets/img/<slug>/cutout.png): sin ella no hay foto al pasar el ratón
-    imgs: [[1246, 2000], [1500, 2000], [1319, 2000], [2000, 1782], [2000, 1937], [1762, 2000], [2000, 1500], [2000, 1320], [2000, 1235]],
-    groups: [[2, 3], [4], [5, 6], [7], [8, 9]], // dos retratos juntos, una sola, otra pareja, una ancha y dos paisajes juntos
+    imgs: [[2000, 1500], [1762, 2000], [2000, 1065]],
+    groups: [[2, 3]], // la primera, grande; el retrato y la ancha, juntos
   },
   {
     slug: '3d-sculpture', title: '3d sculpture', section: 'art', year: '2026', type: 'digital art',
