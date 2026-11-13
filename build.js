@@ -66,8 +66,8 @@ const PROJECTS = [
       'chainmail was made for battle, and for men. here it does the opposite: it drapes and follows the shape of your body, moves a little when you shift your weight, and gives you the feeling of sitting on air. the heavy steel holds the chair, the light mesh holds you.',
       'it belongs to the collection of my master thesis at poli.design, with a chaise longue and a hammock, about empowered femininity in furniture design. it starts from paco rabanne, who turned chainmail into a dress, and asks the same of a chair: to be strong and soft at the same time. steel and aluminium are also recyclable and made to last.',
     ],
-    imgs: [[1105, 1424], [1105, 1424], [1726, 642]],
-    groups: [[2], [3]], // la silla entera y, debajo, el dibujo técnico
+    imgs: [[1105, 1424], [1105, 1424], [1726, 642], [1024, 434]],
+    groups: [[2], [4], [3]], // la silla entera, las tres vistas en el estudio y, al final, el dibujo técnico
   },
   {
     slug: 'generative-photography', title: 'generative photography', section: 'art', kind: 'personal experiments', year: '2026', type: 'personal experiments and exercises',
